@@ -9,11 +9,6 @@ def get_books():
     return books_db
 
 
-@app.get("/books")
-def get_books():
-    return books_db
-
-
 class Book(BaseModel):
     title: str
     author: str
