@@ -1,0 +1,142 @@
+I verkligheten är detta bara:
+
+Frontend → Backend → DB
+Backend → AI → Backend → Frontend
+Det är ett flöde.
+Inte 100 system.
+
+✔ Tydlig CRUD
+✔ FastAPI + React
+✔ Databas
+✔ Deployment
+✔ AI-funktionalitet
+✔ Bra commit-historik
+✔ Förståelse för koden
+👉 Ni behöver inte bygga Netflix för böcker.
+👉 Ni behöver bygga en tekniskt solid, tydlig produkt med AI-komponent.
+
+MVP (Minimum Viable Product)
+
+Detta räcker för VG:
+1. User system
+- Register
+- Login
+- Får automatiskt ett bibliotek
+
+2. CRUD (krav)
+- Skapa bok i "Mitt bibliotek"
+- Se sina böcker
+- Uppdatera status (läst / vill läsa)
+- Ta bort bok
+
+3️. Rekommendationer
+- User anger 3 böcker
+- Backend skickar till AI-modul
+
+Får tillbaka:
+- 3–5 rekommendationer
+- Förklaring per bok
+- Kan spara rekommendation i sitt bibliotek
+
+Det matchar exakt er pitch + PDF-arkitektur
+
+
+Arbetsordning
+Vecka 1 – Backend först
+
+Steg 1: Sätt upp FastAPI + PostgreSQL
+Skapa:
+- Users table
+- Books table
+- SavedBooks table
+- Recommendations table
+
+Det matchar er Miro/PDF 
+BookMatch _ MediaRecc_rev3
+
+Få ALL CRUD att funka via Swagger först.
+
+Vecka 2 React frontend
+
+Nu kopplar ni er design (HTML) 
+index
+ till React.
+
+Gör om:
+index.html → HomePage
+recommend.html → RecommendationPage
+results.html → ResultsPage
+about.html → AboutPage
+
+Fokusera på:
+Axios/fetch mot backend
+State management
+Hantera loading states
+Hantera errors
+Nu har ni en riktig fullstack-app utan AI.
+
+Vecka 3 – AI-modul
+Nu lägger ni till AI.
+
+Ni har två realistiska alternativ:
+Alternativ A (enklare, helt OK för VG)
+
+LLM prompt-baserad rekommendation:
+Skicka de 3 böckerna till GPT
+
+Få tillbaka 5 rekommendationer + motivering
+Spara i DB
+
+Det är helt godkänt – om ni:
+visar hur prompten funkar
+visar hur ni strukturerar svaret
+kan förklara varför det funkar
+
+Alternativ B (mer ML-orienterad)
+Hämta metadata via extern API
+Gör embedding / likhetsmatchning
+Cosine similarity
+Returnera mest liknande böcker
+Det ger mer ML-tyngd.
+Men gör bara detta om ni har tid.
+
+
+4. Deployment (många misslyckas här)
+VG kräver deployment 
+
+projektbeskrivning
+Plan:
+Frontend → Vercel
+Backend → Render / Railway
+Database → Supabase / Railway Postgres
+Testa deployment tidigt.
+Inte sista veckan.
+
+5.
+5. Hur ni jobbar agilt (viktigt för betyg)
+
+Läraren är EXTREMT tydlig om commits 
+projektbeskrivning
+Ni måste:
+- Göra små commits dagligen
+- Skapa branches:
+feature/auth
+feature/crud
+feature/ai
+Göra pull requests
+
+Skriva riktiga commit-meddelanden
+
+Person A
+Auth
+CRUD
+DB-arkitektur
+API-design
+Person B
+React
+State management
+UI
+AI-integration
+
+Sedan code review på varandras arbete.
+Läraren kommer fråga vem som gjort vad
