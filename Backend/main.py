@@ -1,10 +1,19 @@
 from db import SessionLocal
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from models import Book
 from schemas import BookCreate  # importera modellen
 from sqlalchemy.orm import Session
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def get_db():
@@ -13,6 +22,12 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# Test connecting frontend to backend
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 
 # POST /books – lägg till bok
