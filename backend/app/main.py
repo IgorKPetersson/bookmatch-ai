@@ -1,12 +1,18 @@
+from contextlib import asynccontextmanager
+
+from app.db.database import Base, engine
+from app.models.books import Book
 from fastapi import FastAPI
-from pydantic import BaseModel
-
-app = FastAPI()
 
 
-class Book(BaseModel):
-    title: str
-    authors: list[str]
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 books_db = []
@@ -19,7 +25,7 @@ def get_books():
 
 
 @app.post("/books")
-def save_book(book: Book):
+def save_book():
     global book_id_counter
 
     book_dict = book.model_dump()
