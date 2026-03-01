@@ -15,3 +15,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(books_router, prefix="/books")
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "200"}
