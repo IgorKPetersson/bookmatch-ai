@@ -19,5 +19,18 @@ class BookRead(BaseModel):
     release_year: int
     genre: str
 
+    class Config:  # ← must be indented
+        from_attributes = True
+
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+
+class UserRead(BaseModel):
+    id: int
+    email: str
+
     class Config:
         from_attributes = True
