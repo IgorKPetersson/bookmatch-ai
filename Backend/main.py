@@ -1,11 +1,14 @@
+from typing import List
+
 from db import SessionLocal
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import Book
-from schemas import BookCreate  # importera modellen
+from schemas import BookCreate, BookRead
 from sqlalchemy.orm import Session
 
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,14 +27,13 @@ def get_db():
         db.close()
 
 
-# Test connecting frontend to backend
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
 
 
-# POST /books – lägg till bok
-@app.post("/books")
+# 🔹 LÄGG TILL DENNA IGEN
+@app.post("/books", response_model=BookRead)
 def create_book(book: BookCreate, db: Session = Depends(get_db)):
     new_book = Book(
         title=book.title,
@@ -47,7 +49,49 @@ def create_book(book: BookCreate, db: Session = Depends(get_db)):
     return new_book
 
 
-# GET /books – lista alla böcker
-@app.get("/books")
+@app.get("/books", response_model=List[BookRead])
 def get_books(db: Session = Depends(get_db)):
     return db.query(Book).all()
+
+
+@app.get("/books/{book_id}", response_model=BookRead)
+def get_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    return book
+
+
+@app.put("/books/{book_id}", response_model=BookRead)
+def update_book(book_id: int, updated_book: BookCreate, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    book.title = updated_book.title
+    book.authors = updated_book.authors
+    book.short_description = updated_book.short_description
+    book.isbn = updated_book.isbn
+    book.release_year = updated_book.release_year
+    book.genre = updated_book.genre
+
+    db.commit()
+    db.refresh(book)
+
+    return book
+
+
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    db.delete(book)
+    db.commit()
+
+    return {"message": "Book deleted successfully"}
