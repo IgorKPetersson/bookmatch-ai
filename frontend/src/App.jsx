@@ -1,23 +1,28 @@
-import { Routes, Route, Link } from "react-router-dom"
-import Home from "./pages/Home"
-import BookList from "./pages/BookList"
-import BookDetail from "./pages/BookDetail"
+import { useEffect, useState } from "react";
 
-export default function App() {
+function App() {
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/books")
+      .then((res) => res.json())
+      .then((data) => setBooks(data))
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      <nav className="p-4 border-b border-zinc-800 flex gap-6">
-        <Link to="/" className="hover:text-emerald-400">Home</Link>
-        <Link to="/books" className="hover:text-emerald-400">Books</Link>
-      </nav>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Books</h1>
 
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/books" element={<BookList />} />
-          <Route path="/books/:id" element={<BookDetail />} />
-        </Routes>
-      </div>
+      {books.map((book) => (
+        <div key={book.id} className="border p-4 mb-2 rounded">
+          <h2 className="font-semibold">{book.title}</h2>
+          <p>{book.authors}</p>
+          <p className="text-sm text-gray-500">{book.genre}</p>
+        </div>
+      ))}
     </div>
-  )
+  );
 }
+
+export default App;
