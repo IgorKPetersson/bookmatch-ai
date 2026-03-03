@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 
+from app.api.routes.auth import router as auth_router
 from app.api.routes.books import router as books_router
 from app.db.database import Base, engine
 from app.models.books import Book
+from app.models.users import User
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(books_router, prefix="/books")
+app.include_router(auth_router, prefix="/auth")
 
 
 @app.get("/health")

@@ -7,3 +7,5 @@ pydantic-settings
 python-dotenv
 psycopg2-binary
 httpx
+bcrypt
+python-jose[cryptography]
