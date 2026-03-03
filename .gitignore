@@ -144,3 +144,7 @@ venv/
 # Cache
 __pycache__/
 *.pyc
+
+# Unnecessary textfiles
+struktur.txt
+structure.txt

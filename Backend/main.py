@@ -3,6 +3,7 @@ from typing import List
 from db import SessionLocal
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from models import Book, User
 from schemas import BookCreate, BookRead, UserCreate, UserRead
 from security import (
@@ -148,9 +149,12 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 # Login user
 @app.post("/login")
-def login(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
+    db_user = db.query(User).filter(User.email == form_data.username).first()
+
+    if not db_user or not verify_password(form_data.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     access_token = create_access_token(data={"sub": db_user.email})
