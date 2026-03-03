@@ -146,5 +146,8 @@ __pycache__/
 *.pyc
 
 # Unnecessary textfiles
-struktur.txt
+Miro/
+filstruktur.txt
+funktionalitet.txt
+skolans_krav.txt
 structure.txt
