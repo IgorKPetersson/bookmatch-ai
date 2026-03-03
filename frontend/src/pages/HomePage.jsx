@@ -5,7 +5,7 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   useEffect(() => {
     fetch("http://localhost:8000/health")
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then((data) => setStatus(data.status))
       .catch((error) => {
         (setError(error), console.error("Failed: ", error));
