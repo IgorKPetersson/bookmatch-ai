@@ -1,48 +1,31 @@
-import { useEffect, useState } from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import Index from "./pages/Index";
+import Search from "./pages/Search";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
 
-function App() {
-  const [books, setBooks] = useState([]);
-  const [token, setToken] = useState("");
-
-  // Logga in automatiskt och spara token
-  useEffect(() => {
-    fetch("http://localhost:8000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "test@test.com", password: "123456" }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        setToken(data.access_token);
-        fetchBooks(data.access_token);
-      })
-      .catch(err => console.error(err));
-  }, []);
-
-  // Hämta böcker med token
-  const fetchBooks = (token) => {
-    fetch("http://localhost:8000/books", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => res.json())
-      .then(data => setBooks(data))
-      .catch(err => console.error(err));
-  };
-
+export default function App() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Books</h1>
-      {books.map((book) => (
-        <div key={book.id} className="border p-4 mb-2 rounded">
-          <h2 className="font-semibold">{book.title}</h2>
-          <p>{book.authors}</p>
-          <p className="text-sm text-gray-500">{book.genre}</p>
-        </div>
-      ))}
+    <div>
+      <nav>
+        <Link to="/">Index</Link> |{" "}
+        <Link to="/search">Search</Link> |{" "}
+        <Link to="/auth">Login</Link> |{" "}
+        <Link to="/dashboard">Dashboard</Link> |{" "}
+        <Link to="/contact">Contact</Link> |{" "}
+        <Link to="/about">About</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
     </div>
   );
 }
-
-export default App;
