@@ -4,8 +4,17 @@ from db import SessionLocal
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from models import Book, User
-from schemas import BookCreate, BookRead, UserCreate, UserRead
+from models import Book, BookList, BookListItem, User
+from schemas import (
+    BookCreate,
+    BookListCreate,
+    BookListItemCreate,
+    BookListItemRead,
+    BookListRead,
+    BookRead,
+    UserCreate,
+    UserRead,
+)
 from security import (
     create_access_token,
     get_current_user,
@@ -159,3 +168,126 @@ def login(
 
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# -------------------
+# BOOKLIST CRUD
+# -------------------
+@app.post("/booklists", response_model=BookListRead)
+def create_booklist(
+    booklist: BookListCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    new_list = BookList(
+        name=booklist.name,
+        user_id=current_user.id,
+    )
+
+    db.add(new_list)
+    db.commit()
+    db.refresh(new_list)
+
+    return new_list
+
+
+@app.get("/booklists", response_model=List[BookListRead])
+def get_my_booklists(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return db.query(BookList).filter(BookList.user_id == current_user.id).all()
+
+
+@app.delete("/booklists/{booklist_id}")
+def delete_booklist(
+    booklist_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    booklist = (
+        db.query(BookList)
+        .filter(BookList.id == booklist_id, BookList.user_id == current_user.id)
+        .first()
+    )
+
+    if not booklist:
+        raise HTTPException(status_code=404, detail="BookList not found")
+
+    db.delete(booklist)
+    db.commit()
+
+    return {"message": "BookList deleted"}
+
+
+@app.put("/booklists/{booklist_id}", response_model=BookListRead)
+def update_booklist(
+    booklist_id: int,
+    updated: BookListCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    booklist = (
+        db.query(BookList)
+        .filter(BookList.id == booklist_id, BookList.user_id == current_user.id)
+        .first()
+    )
+
+    if not booklist:
+        raise HTTPException(status_code=404, detail="BookList not found")
+
+    booklist.name = updated.name
+
+    db.commit()
+    db.refresh(booklist)
+
+    return booklist
+
+
+@app.post("/booklists/{booklist_id}/books", response_model=BookListItemRead)
+def add_book_to_booklist(
+    booklist_id: int,
+    item: BookListItemCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # kontrollera att boklistan tillhör användaren
+    booklist = (
+        db.query(BookList)
+        .filter(BookList.id == booklist_id, BookList.user_id == current_user.id)
+        .first()
+    )
+
+    if not booklist:
+        raise HTTPException(status_code=404, detail="BookList not found")
+
+    new_item = BookListItem(
+        booklist_id=booklist_id,
+        book_id=item.book_id,
+    )
+
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+
+    return new_item
+
+
+@app.get("/booklists/{booklist_id}/books", response_model=List[BookListItemRead])
+def get_books_in_booklist(
+    booklist_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    booklist = (
+        db.query(BookList)
+        .filter(BookList.id == booklist_id, BookList.user_id == current_user.id)
+        .first()
+    )
+
+    if not booklist:
+        raise HTTPException(status_code=404, detail="BookList not found")
+
+    items = db.query(BookListItem).filter(BookListItem.booklist_id == booklist_id).all()
+
+    return items
