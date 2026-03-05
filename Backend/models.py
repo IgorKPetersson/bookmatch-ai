@@ -38,6 +38,18 @@ class BookList(Base):
     user = relationship("User", backref="booklists")
 
 
+class BookListItem(Base):
+    __tablename__ = "booklist_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    booklist_id = Column(Integer, ForeignKey("booklists.id"))
+    book_id = Column(Integer, ForeignKey("books.id"))
+
+    booklist = relationship("BookList", backref="items")
+    book = relationship("Book")
+
+
 class Preference(Base):
     __tablename__ = "preferences"
 

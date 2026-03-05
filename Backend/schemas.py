@@ -34,3 +34,29 @@ class UserRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BookListCreate(BaseModel):
+    name: str
+
+
+class BookListRead(BaseModel):
+    id: int
+    name: str
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+
+class BookListItemCreate(BaseModel):
+    book_id: int
+
+
+class BookListItemRead(BaseModel):
+    id: int
+    book_id: int
+    booklist_id: int
+
+    class Config:
+        from_attributes = True
