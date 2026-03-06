@@ -9,6 +9,19 @@ class BookCreate(BaseModel):
     release_year: int
     genre: str
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "Dune",
+                "authors": "Frank Herbert",
+                "short_description": "Epic science fiction novel about politics and power.",
+                "isbn": "9780441013593",
+                "release_year": 1965,
+                "genre": "Science Fiction",
+            }
+        }
+    }
+
 
 class BookRead(BaseModel):
     id: int

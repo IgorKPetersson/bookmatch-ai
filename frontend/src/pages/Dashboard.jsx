@@ -5,6 +5,12 @@ export default function Dashboard() {
   const [books, setBooks] = useState([]);
   const [newListName, setNewListName] = useState("");
   const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [authors, setAuthors] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [isbn, setIsbn] = useState("");
+  const [releaseYear, setReleaseYear] = useState("");
+  const [genre, setGenre] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -19,7 +25,7 @@ export default function Dashboard() {
 
   async function fetchBooks(token) {
     try {
-      const res = await fetch("http://localhost:8000/booklists", {
+      const res = await fetch("http://localhost:8000/books", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -37,28 +43,89 @@ export default function Dashboard() {
     }
   }
 
-async function handleCreateBooklist() {
+function handleCreateBooklist() {
+  console.log("Create booklist clicked");
+}
+async function handleAddBook() {
   const token = localStorage.getItem("token");
-  if (!token || !newListName) return;
 
   try {
-    const res = await fetch("http://localhost:8000/booklists", {
+    const res = await fetch("http://localhost:8000/books", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name: newListName }),
+      body: JSON.stringify({
+        title: title,
+        authors: authors,
+        short_description: shortDescription,
+        isbn: isbn,
+        release_year: Number(releaseYear),
+        genre: genre,
+      }),
     });
 
-    if (!res.ok) {
-      console.error("Failed to create booklist");
-      return;
-    }
+    const data = await res.json();
+    console.log("Book created:", data);
+    fetchBooks(token);
+    setTitle("");
+    setAuthors("");
+    setShortDescription("");
+    setIsbn("");
+    setReleaseYear("");
+    setGenre("");
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-    const newBooklist = await res.json();
-    setBooks([...books, newBooklist]);
-    setNewListName(""); // rensa inputfältet
+async function handleDeleteBook(bookId) {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await fetch(`http://localhost:8000/books/${bookId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.ok) {
+      fetchBooks(token);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function handleEditBook(book) {
+  const token = localStorage.getItem("token");
+
+  const newTitle = prompt("Enter new title:", book.title);
+
+  if (!newTitle) return;
+
+  try {
+    const res = await fetch(`http://localhost:8000/books/${book.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        title: newTitle,
+        authors: book.authors,
+        short_description: book.short_description,
+        isbn: book.isbn,
+        release_year: book.release_year,
+        genre: book.genre,
+      }),
+    });
+
+    if (res.ok) {
+      fetchBooks(token);
+    }
   } catch (err) {
     console.error(err);
   }
@@ -67,6 +134,31 @@ async function handleCreateBooklist() {
   return (
   <div>
     <h1>Dashboard</h1>
+    <div className="mb-6">
+  <h2 className="text-xl mb-2">Add Book</h2>
+
+  <input
+    className="border p-2 mr-2"
+    placeholder="Title"
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+  />
+
+  <input
+    className="border p-2 mr-2"
+    placeholder="Author"
+    value={authors}
+    onChange={(e) => setAuthors(e.target.value)}
+  />
+
+  <button
+    className="bg-blue-500 text-white px-4 py-2"
+    onClick={handleAddBook}
+  >
+    Add Book
+  </button>
+
+</div>
 
     <button
       onClick={() => {
@@ -78,12 +170,31 @@ async function handleCreateBooklist() {
     </button>
     <input type="text" placeholder="New booklist name" value={newListName} onChange={(e) => setNewListName(e.target.value)} />
     <button onClick={handleCreateBooklist}>Create Booklist</button>
+    {books.length === 0 && <p>No books yet.</p>}
 
     <ul>
       {books.map((book) => (
-        <li key={book.id}>{book.name}</li>
+        <li key={book.id} style={{ marginBottom: "10px" }}>
+          <strong>{book.title}</strong> – {book.authors} ({book.release_year})
+
+          <button
+            onClick={() => handleEditBook(book)}
+            style={{ marginLeft: "10px" }}
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={() => handleDeleteBook(book.id)}
+            style={{ marginLeft: "5px" }}
+          >
+            Delete
+          </button>
+        </li>
       ))}
     </ul>
   </div>
 );
 }
+
+
