@@ -23,7 +23,11 @@ from security import (
 )
 from sqlalchemy.orm import Session
 
-app = FastAPI()
+app = FastAPI(
+    title="BookMatch API",
+    description="API for the BookMatch application. Users can search books, manage booklists and get recommendations.",
+    version="1.0.0",
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,7 +47,7 @@ def get_db():
 
 
 # Health check
-@app.get("/health")
+@app.get("/health", tags=["System"])
 def health_check():
     return {"status": "ok"}
 
@@ -54,7 +58,7 @@ def health_check():
 
 
 # Create book
-@app.post("/books", response_model=BookRead)
+@app.post("/books", response_model=BookRead, status_code=201, tags=["Books"])
 def create_book(
     book: BookCreate,
     db: Session = Depends(get_db),
@@ -75,7 +79,13 @@ def create_book(
 
 
 # Get all books
-@app.get("/books", response_model=List[BookRead])
+@app.get(
+    "/books",
+    response_model=List[BookRead],
+    tags=["Books"],
+    summary="Get all books",
+    description="Returns all books stored in the BookMatch database.",
+)
 def get_books(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
@@ -83,7 +93,7 @@ def get_books(
 
 
 # Get book by id
-@app.get("/books/{book_id}", response_model=BookRead)
+@app.get("/books/{book_id}", response_model=BookRead, tags=["Books"])
 def get_book(
     book_id: int,
     db: Session = Depends(get_db),
@@ -96,7 +106,7 @@ def get_book(
 
 
 # Update book
-@app.put("/books/{book_id}", response_model=BookRead)
+@app.put("/books/{book_id}", response_model=BookRead, tags=["Books"])
 def update_book(
     book_id: int,
     updated_book: BookCreate,
@@ -120,7 +130,7 @@ def update_book(
 
 
 # Delete book
-@app.delete("/books/{book_id}")
+@app.delete("/books/{book_id}", tags=["Books"])
 def delete_book(
     book_id: int,
     db: Session = Depends(get_db),
@@ -140,7 +150,7 @@ def delete_book(
 
 
 # Register new user
-@app.post("/register", response_model=UserRead)
+@app.post("/register", response_model=UserRead, status_code=201, tags=["Auth"])
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -157,7 +167,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 
 # Login user
-@app.post("/login")
+@app.post("/login", tags=["Auth"])
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
@@ -173,7 +183,9 @@ def login(
 # -------------------
 # BOOKLIST CRUD
 # -------------------
-@app.post("/booklists", response_model=BookListRead)
+@app.post(
+    "/booklists", response_model=BookListRead, status_code=201, tags=["BookListItems"]
+)
 def create_booklist(
     booklist: BookListCreate,
     db: Session = Depends(get_db),
@@ -191,7 +203,7 @@ def create_booklist(
     return new_list
 
 
-@app.get("/booklists", response_model=List[BookListRead])
+@app.get("/booklists", response_model=List[BookListRead], tags=["BookLists"])
 def get_my_booklists(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -199,7 +211,7 @@ def get_my_booklists(
     return db.query(BookList).filter(BookList.user_id == current_user.id).all()
 
 
-@app.delete("/booklists/{booklist_id}")
+@app.delete("/booklists/{booklist_id}", tags=["BookLists"])
 def delete_booklist(
     booklist_id: int,
     db: Session = Depends(get_db),
@@ -220,7 +232,7 @@ def delete_booklist(
     return {"message": "BookList deleted"}
 
 
-@app.put("/booklists/{booklist_id}", response_model=BookListRead)
+@app.put("/booklists/{booklist_id}", response_model=BookListRead, tags=["BookLists"])
 def update_booklist(
     booklist_id: int,
     updated: BookListCreate,
@@ -244,7 +256,12 @@ def update_booklist(
     return booklist
 
 
-@app.post("/booklists/{booklist_id}/books", response_model=BookListItemRead)
+@app.post(
+    "/booklists/{booklist_id}/books",
+    response_model=BookListItemRead,
+    status_code=201,
+    tags=["BookListItems"],
+)
 def add_book_to_booklist(
     booklist_id: int,
     item: BookListItemCreate,
@@ -273,7 +290,11 @@ def add_book_to_booklist(
     return new_item
 
 
-@app.get("/booklists/{booklist_id}/books", response_model=List[BookListItemRead])
+@app.get(
+    "/booklists/{booklist_id}/books",
+    response_model=List[BookListItemRead],
+    tags=["BookLists"],
+)
 def get_books_in_booklist(
     booklist_id: int,
     db: Session = Depends(get_db),

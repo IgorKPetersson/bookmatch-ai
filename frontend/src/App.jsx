@@ -1,3 +1,4 @@
+import Register from "./pages/Register";
 import { Routes, Route, Link } from "react-router-dom";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
@@ -21,6 +22,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/contact" element={<Contact />} />
