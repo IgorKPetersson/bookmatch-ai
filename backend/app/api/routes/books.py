@@ -1,5 +1,7 @@
+from app.api.dependencies import get_current_user
 from app.db.database import get_db
 from app.models.books import Book
+from app.models.users import User
 from app.schemas.books import BookCreate
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -9,13 +11,20 @@ router = APIRouter()
 
 
 @router.get("/")
-async def get_books(db: AsyncSession = Depends(get_db)):
+async def get_books(
+    db: AsyncSession = Depends(get_db),
+    user_verification: User = Depends(get_current_user),
+):
     result = await db.execute(select(Book))
     return result.scalars().all()
 
 
 @router.post("/")
-async def save_book(book: BookCreate, db: AsyncSession = Depends(get_db)):
+async def save_book(
+    book: BookCreate,
+    db: AsyncSession = Depends(get_db),
+    user_verification: User = Depends(get_current_user),
+):
     new_book = Book(
         title=book.title,
         authors=", ".join(book.authors),
@@ -32,7 +41,11 @@ async def save_book(book: BookCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/{book_id}", status_code=200)
-async def delete_book(book_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_book(
+    book_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_verification: User = Depends(get_current_user),
+):
     result = await db.execute(select(Book).where(Book.id == book_id))
     requested_book = result.scalar_one_or_none()
     if requested_book is None:
