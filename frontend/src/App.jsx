@@ -13,6 +13,7 @@ export default function App() {
       <nav>
         <Link to="/">Index</Link> |{" "}
         <Link to="/search">Search</Link> |{" "}
+        <Link to="/register">Register</Link> |{" "}
         <Link to="/auth">Login</Link> |{" "}
         <Link to="/dashboard">Dashboard</Link> |{" "}
         <Link to="/contact">Contact</Link> |{" "}

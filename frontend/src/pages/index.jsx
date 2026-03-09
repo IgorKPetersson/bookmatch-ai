@@ -2,9 +2,12 @@ import { useState } from "react";
 
 export default function Index() {
   const [books, setBooks] = useState([]);
+  const [error, setError] = useState("");
 
   async function fetchBooks() {
     try {
+      setError("");
+
       const token = localStorage.getItem("token");
 
       const res = await fetch("http://localhost:8000/books", {
@@ -14,23 +17,30 @@ export default function Index() {
       });
 
       const data = await res.json();
-      console.log("DATA:", data);
-setBooks(data);
+
+      if (res.status === 401) {
+        setError("Login to be able to list books");
+        return;
+      }
+
+      setBooks(data);
     } catch (err) {
-      console.error(err);
+      setError("Something went wrong");
     }
   }
 
   return (
     <div>
-      <h1>INDEX TEST 123</h1>
+      <h1>Welcome to Bookmatch AI</h1>
 
       <button
         style={{ border: "2px solid red", padding: "10px" }}
         onClick={fetchBooks}
       >
-        Hämta böcker
+        Fetch Books
       </button>
+
+      {error && <p>{error}</p>}
 
       <ul>
         {books.map((book) => (
