@@ -1,0 +1,111 @@
+<!-- TODO: Extract header into component/partial in React -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookMatch – About</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow">
+      <div
+        class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <a href="index.html" class="flex items-center">
+          <img
+            src="images/mediarecc-logo.png"
+            alt="MediaRecc logo"
+            class="h-8 w-auto"
+          />
+        </a>
+        <nav class="space-x-6">
+          <a href="index.html" class="hover:text-blue-600">Home</a>
+          <a href="recommend.html" class="hover:text-blue-600"
+            >Get Recommendations</a
+          >
+          <a href="about.html" class="hover:text-blue-600 font-semibold"
+            >About</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="max-w-4xl mx-auto px-6 py-16">
+      <!-- About the project -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold mb-4">About BookMatch</h2>
+        <p class="text-gray-700 leading-relaxed">
+          BookMatch is a student project exploring how artificial intelligence
+          and modern web technologies can be used to create personalized
+          recommendations for books and other types of media.
+        </p>
+        <p class="text-gray-700 leading-relaxed mt-4">
+          The goal is to help users discover new content based on what they
+          already enjoy, starting with books and expanding to other media
+          formats in the future.
+        </p>
+      </section>
+
+      <!-- Future vision -->
+      <section class="mb-16">
+        <h3 class="text-2xl font-bold mb-6">Future Vision</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h4 class="font-semibold mb-2">📚 Books</h4>
+            <p class="text-gray-600">
+              Intelligent book recommendations based on themes, style, and user
+              preferences.
+            </p>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h4 class="font-semibold mb-2">🎬 Movies</h4>
+            <p class="text-gray-600">
+              Discover films that match your taste in storytelling, mood, and
+              genre.
+            </p>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h4 class="font-semibold mb-2">🎵 Music</h4>
+            <p class="text-gray-600">
+              Get music recommendations based on emotional tone and listening
+              habits.
+            </p>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <h4 class="font-semibold mb-2">🎭 Theatre & Culture</h4>
+            <p class="text-gray-600">
+              Personalized recommendations for theatre, shows, and cultural
+              experiences.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Technology -->
+      <section>
+        <h3 class="text-2xl font-bold mb-4">Planned Technology Stack</h3>
+
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+          <li>React for the frontend</li>
+          <li>FastAPI for the backend</li>
+          <li>AI / LLM-based recommendation logic</li>
+          <li>Databases for storing content and user preferences</li>
+        </ul>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 py-6 mt-12">
+      <div class="max-w-6xl mx-auto px-6 text-center text-sm text-gray-500">
+        Student project – AI & Fullstack Development
+      </div>
+    </footer>
+  </body>
+</html>
