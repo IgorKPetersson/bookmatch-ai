@@ -1,28 +1,25 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../context/authcontext";
 
-export default function LoginForm() {
-  const { setToken } = useContext(AuthContext);
+export default function RegistrationForm() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   function handleSubmit() {
-    fetch("http://localhost:8000/auth/login", {
+    fetch("http://localhost:8000/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        setToken(data.access_token);
-        localStorage.setItem("token", data.access_token);
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Registration failed.");
+        }
+        return response.json();
       })
-      .then(() => navigate("/"))
+      .then(() => navigate("/login"))
       .catch((error) => {
         console.log(error);
       });
@@ -39,7 +36,7 @@ export default function LoginForm() {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="'oliver123'"
+        placeholder="'oliver123123'"
       />
       <button onClick={handleSubmit}>SUBMIT</button>
     </div>
