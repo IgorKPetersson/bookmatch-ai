@@ -12,6 +12,8 @@ from schemas import (
     BookListItemRead,
     BookListRead,
     BookRead,
+    RecommendationRequest,
+    RecommendationResponse,
     UserCreate,
     UserRead,
 )
@@ -312,3 +314,45 @@ def get_books_in_booklist(
     items = db.query(BookListItem).filter(BookListItem.booklist_id == booklist_id).all()
 
     return items
+
+
+# -------------------
+# AI RECOMMENDATIONS (Mock)
+# -------------------
+
+
+# Mock recommendations (no real ai yet)
+@app.post(
+    "/recommendations",
+    response_model=RecommendationResponse,
+    tags=["Recommendations"],
+)
+def get_recommendations(
+    request: RecommendationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    favorite_books = request.favorite_books
+    if len(favorite_books) < 3:
+        raise HTTPException(
+            status_code=400, detail="Please provide at least 3 favorite books"
+        )
+
+    recommendations = [
+        {
+            "title": "Hyperion",
+            "author": "Dan Simmons",
+            "reason": "Epic science fiction similar to books you like.",
+        },
+        {
+            "title": "Snow Crash",
+            "author": "Neal Stephenson",
+            "reason": "Fast paced cyberpunk recommendation.",
+        },
+        {
+            "title": "The Left Hand of Darkness",
+            "author": "Ursula K. Le Guin",
+            "reason": "Thought provoking sci-fi classic.",
+        },
+    ]
+
+    return {"recommendations": recommendations}

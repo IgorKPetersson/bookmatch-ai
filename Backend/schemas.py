@@ -73,3 +73,23 @@ class BookListItemRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+from typing import List, Optional
+
+from pydantic import BaseModel
+
+
+class RecommendationRequest(BaseModel):
+    favorite_books: List[str]
+    genre: Optional[str] = None
+
+
+class RecommendationItem(BaseModel):
+    title: str
+    author: str
+    reason: str
+
+
+class RecommendationResponse(BaseModel):
+    recommendations: List[RecommendationItem]
