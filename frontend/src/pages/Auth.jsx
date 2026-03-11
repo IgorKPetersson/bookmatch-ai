@@ -36,33 +36,36 @@ export default function Auth() {
   }
 
   return (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold mb-4">Login</h1>
-
-    <form onSubmit={handleLogin} className="space-y-4 max-w-sm">
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border border-gray-300 rounded px-3 py-2"
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border border-gray-300 rounded px-3 py-2"
-      />
-
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded shadow-md w-96"
       >
-        Log in
-      </button>
-    </form>
-  </div>
-);
+        <h1 className="text-2xl font-semibold mb-4 text-center">Login</h1>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border border-gray-300 px-3 py-2 w-full mb-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border border-gray-300 px-3 py-2 w-full mb-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 w-full rounded-md font-semibold"
+        >
+          Log in
+        </button>
+      </form>
+    </div>
+  );
 }
