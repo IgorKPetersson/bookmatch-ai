@@ -13,6 +13,6 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-from models import Book
+from models import Book, RecommendationList, RecommendedBook
 
 Base.metadata.create_all(bind=engine)
