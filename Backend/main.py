@@ -4,7 +4,14 @@ from db import SessionLocal
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from models import Book, BookList, BookListItem, User
+from models import (
+    Book,
+    BookList,
+    BookListItem,
+    RecommendationList,
+    RecommendedBook,
+    User,
+)
 from schemas import (
     BookCreate,
     BookListCreate,
@@ -14,6 +21,7 @@ from schemas import (
     BookRead,
     RecommendationRequest,
     RecommendationResponse,
+    RecommendedListRead,
     UserCreate,
     UserRead,
 )
@@ -344,6 +352,7 @@ def get_books_in_booklist(
 def get_recommendations(
     request: RecommendationRequest,
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     favorite_books = request.favorite_books
     if len(favorite_books) < 3:
@@ -369,7 +378,36 @@ def get_recommendations(
         },
     ]
 
+    new_list = RecommendationList(
+        user_id=current_user.id,
+        input_books=",".join(favorite_books),
+        input_genre=request.genre,
+    )
+    db.add(new_list)
+    db.commit()
+    db.refresh(new_list)
+
+    for book in recommendations:
+        new_book = RecommendedBook(
+            title=book["title"],
+            authors=book["author"],
+            reason=book["reason"],
+            recommendation_list_id=new_list.id,
+        )
+        db.add(new_book)
+    db.commit()
     return {"recommendations": recommendations}
+
+
+@app.get("/history", response_model=List[RecommendedListRead], tags=["Recommendations"])
+def fetch_recommend_history(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    return (
+        db.query(RecommendationList)
+        .filter(RecommendationList.user_id == current_user.id)
+        .all()
+    )
 
 
 @app.post("/logout", tags=["Auth"])

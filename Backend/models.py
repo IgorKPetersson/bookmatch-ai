@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from db import Base
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 
@@ -73,3 +75,35 @@ class History(Base):
 
     user = relationship("User", backref="history")
     book = relationship("Book")
+
+
+class RecommendationList(Base):
+    __tablename__ = "recommendation_list"
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    input_books = Column(String, nullable=False)
+
+    input_genre = Column(String)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    books = relationship("RecommendedBook")
+
+
+class RecommendedBook(Base):
+    __tablename__ = "recommended_book"
+
+    id = Column(Integer, primary_key=True)
+
+    recommendation_list_id = Column(
+        Integer, ForeignKey("recommendation_list.id"), nullable=False
+    )
+
+    title = Column(String, nullable=False)
+
+    authors = Column(String)
+
+    reason = Column(String, nullable=False)

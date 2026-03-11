@@ -93,3 +93,22 @@ class RecommendationItem(BaseModel):
 
 class RecommendationResponse(BaseModel):
     recommendations: List[RecommendationItem]
+
+
+class RecommendedBookRead(BaseModel):
+    title: str
+    authors: str
+    reason: str
+
+    class Config:
+        from_attributes = True
+
+
+class RecommendedListRead(BaseModel):
+    id: int
+    books: list[RecommendedBookRead]
+    input_books: str
+    input_genre: str
+
+    class Config:
+        from_attributes = True
