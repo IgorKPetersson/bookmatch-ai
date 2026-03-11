@@ -12,13 +12,8 @@ export default function Dashboard() {
   const [releaseYear, setReleaseYear] = useState("");
   const [genre, setGenre] = useState("");
 
-  useEffect(() => {
 
-
-    fetchBooks();
-  }, []);
-
-  async function fetchBooks() {
+const fetchBooks = async () => {
     try {
       const res = await fetch("http://localhost:8000/books", {
         credentials: "include",
@@ -37,7 +32,12 @@ export default function Dashboard() {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
+    useEffect(() => {
+      fetchBooks();
+    }, []);
+
+
 
 function handleCreateBooklist() {
   console.log("Create booklist clicked");
@@ -61,12 +61,9 @@ async function handleAddBook() {
         genre: genre,
       }),
     });
-
-    fetchBooks();
-
     const data = await res.json();
     console.log("Book created:", data);
-    fetchBooks(token);
+    fetchBooks();
     setTitle("");
     setAuthors("");
     setShortDescription("");
