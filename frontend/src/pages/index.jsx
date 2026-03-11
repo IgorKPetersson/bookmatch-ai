@@ -8,11 +8,11 @@ export default function Index() {
     try {
       setError("");
 
-      const token = localStorage.getItem("token");
+
 
       const res = await fetch("http://localhost:8000/books", {
+        credentials: "include",
         headers: {
-          Authorization: `Bearer ${token}`,
         },
       });
 

@@ -1,3 +1,4 @@
+from fastapi import Request
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -18,7 +19,7 @@ from dotenv import load_dotenv
 from jose import JWTError, jwt
 
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY")  # byt senare via .env
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -55,19 +56,14 @@ def get_db():
         db.close()
 
 
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
-    payload = verify_token(token)
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    email = request.session.get("user_email")
 
-    if payload is None:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    email: str = payload.get("sub")
     if email is None:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     user = db.query(User).filter(User.email == email).first()
+
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 

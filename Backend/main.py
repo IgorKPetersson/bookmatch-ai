@@ -1,7 +1,7 @@
 from typing import List
 
 from db import SessionLocal
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from models import Book, BookList, BookListItem, User
@@ -18,12 +18,14 @@ from schemas import (
     UserRead,
 )
 from security import (
+    SECRET_KEY,
     create_access_token,
     get_current_user,
     hash_password,
     verify_password,
 )
 from sqlalchemy.orm import Session
+from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI(
     title="BookMatch API",
@@ -38,6 +40,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 def get_db():
@@ -171,15 +174,26 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 # Login user
 @app.post("/login", tags=["Auth"])
 def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
 ):
     db_user = db.query(User).filter(User.email == form_data.username).first()
+
+    print("EMAIL:", form_data.username)
+    print("USER:", db_user)
+
+    if db_user:
+        print(
+            "PASSWORD MATCH:",
+            verify_password(form_data.password, db_user.hashed_password),
+        )
 
     if not db_user or not verify_password(form_data.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    access_token = create_access_token(data={"sub": db_user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    request.session["user_email"] = db_user.email
+    return {"message": "login successful"}
 
 
 # -------------------
@@ -356,3 +370,9 @@ def get_recommendations(
     ]
 
     return {"recommendations": recommendations}
+
+
+@app.post("/logout", tags=["Auth"])
+def logout(request: Request):
+    request.session.clear()
+    return {"message": "Logged out"}

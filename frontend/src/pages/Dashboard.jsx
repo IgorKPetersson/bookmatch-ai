@@ -13,22 +13,18 @@ export default function Dashboard() {
   const [genre, setGenre] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
 
-    if (!token) {
-      navigate("/auth");
-      return;
-    }
 
-    fetchBooks(token);
+    fetchBooks();
   }, []);
 
-  async function fetchBooks(token) {
+  async function fetchBooks() {
     try {
       const res = await fetch("http://localhost:8000/books", {
+        credentials: "include",
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          "Content-Type": "application/json"
+        }
       });
 
       if (!res.ok) {
@@ -47,14 +43,14 @@ function handleCreateBooklist() {
   console.log("Create booklist clicked");
 }
 async function handleAddBook() {
-  const token = localStorage.getItem("token");
 
   try {
     const res = await fetch("http://localhost:8000/books", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+
       },
       body: JSON.stringify({
         title: title,
@@ -65,6 +61,8 @@ async function handleAddBook() {
         genre: genre,
       }),
     });
+
+    fetchBooks();
 
     const data = await res.json();
     console.log("Book created:", data);
@@ -81,18 +79,17 @@ async function handleAddBook() {
 }
 
 async function handleDeleteBook(bookId) {
-  const token = localStorage.getItem("token");
 
   try {
     const res = await fetch(`http://localhost:8000/books/${bookId}`, {
       method: "DELETE",
+      credentials: "include",
       headers: {
-        Authorization: `Bearer ${token}`,
       },
     });
 
     if (res.ok) {
-      fetchBooks(token);
+      fetchBooks();
     }
   } catch (err) {
     console.error(err);
@@ -100,7 +97,6 @@ async function handleDeleteBook(bookId) {
 }
 
 async function handleEditBook(book) {
-  const token = localStorage.getItem("token");
 
   const newTitle = prompt("Enter new title:", book.title);
 
@@ -109,10 +105,10 @@ async function handleEditBook(book) {
   try {
     const res = await fetch(`http://localhost:8000/books/${book.id}`, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+              },
       body: JSON.stringify({
         title: newTitle,
         authors: book.authors,
@@ -124,7 +120,7 @@ async function handleEditBook(book) {
     });
 
     if (res.ok) {
-      fetchBooks(token);
+      fetchBooks();
     }
   } catch (err) {
     console.error(err);
@@ -161,13 +157,17 @@ async function handleEditBook(book) {
 </div>
 
     <button
-      onClick={() => {
-        localStorage.removeItem("token");
+      onClick={async () => {
+        await fetch("http://localhost:8000/logout", {
+          method: "POST",
+          credentials: "include"
+        });
         navigate("/auth");
       }}
     >
       Logout
     </button>
+
     <input type="text" placeholder="New booklist name" value={newListName} onChange={(e) => setNewListName(e.target.value)} />
     <button onClick={handleCreateBooklist}>Create Booklist</button>
     {books.length === 0 && <p>No books yet.</p>}
