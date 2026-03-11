@@ -15,9 +15,9 @@ export default function BookRecommendations() {
       setError("");
       const res = await fetch("http://localhost:8000/recommendations", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("token"),
         },
         body: JSON.stringify({
           favorite_books: [book1, book2, book3],
