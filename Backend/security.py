@@ -11,11 +11,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+import os
 from datetime import datetime, timedelta
 
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 
-SECRET_KEY = "supersecretkey"  # byt senare via .env
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")  # byt senare via .env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
