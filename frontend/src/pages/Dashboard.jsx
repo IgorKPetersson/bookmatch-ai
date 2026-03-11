@@ -123,10 +123,10 @@ async function handleEditBook(book) {
     console.error(err);
   }
 }
-
   return (
-  <div>
-    <h1>Dashboard</h1>
+  <div className="flex justify-center items-start min-h-screen bg-gray-100 p-8">
+    <div className="bg-white p-8 rounded shadow-md w-96">
+      <h1>Dashboard</h1>
     <div className="mb-6">
   <h2 className="text-xl mb-2">Add Book</h2>
 
@@ -190,6 +190,7 @@ async function handleEditBook(book) {
         </li>
       ))}
     </ul>
+  </div>
   </div>
 );
 }
