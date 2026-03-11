@@ -50,16 +50,21 @@ function Register() {
         onSubmit={handleRegister}
         className="bg-white p-8 rounded shadow-md w-96"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center">Create account</h2>
-        <p className="text-sm text-gray-600 text-center mb-6">
-          Get personalized book recommendations
-        </p>
-        <p className="text-sm text-center mb-6">
-          Already have an account?{" "}
-          <a href="/auth" className="text-blue-600 hover:underline">
-            Log in
-          </a>
-        </p>
+        <div className="text-center mb-6 space-y-1">
+          <h2 className="text-2xl font-semibold">Create account</h2>
+
+          <p className="text-sm text-gray-600">
+            Get personalized book recommendations
+          </p>
+
+          <p className="text-sm">
+            Already have an account?{" "}
+            <a href="/auth" className="text-blue-600 hover:underline">
+              Log in
+            </a>
+          </p>
+        </div>
+        <div className="border-t border-gray-200 my-6"></div>
 
         <div className="flex gap-4">
           <div className="flex-1">
