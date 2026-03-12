@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BookCard from "../components/BookCard";
+import { Link } from "react-router-dom";
 
 export default function BookRecommendations() {
   const [book1, setBook1] = useState("");
@@ -9,10 +10,12 @@ export default function BookRecommendations() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
+  const [needsLogin, setNeedsLogin] = useState(false);
   async function handleSubmit(e) {
     try {
       setLoading(true);
       setError("");
+      setNeedsLogin(false);
       const res = await fetch("http://localhost:8000/recommendations", {
         method: "POST",
         credentials: "include",
@@ -27,6 +30,8 @@ export default function BookRecommendations() {
       const data = await res.json();
       if (res.ok) {
         setRecommendations(data.recommendations);
+      } else if (res.status === 401) {
+        setNeedsLogin(true);
       } else {
         setError("Something went wrong.");
       }
@@ -39,8 +44,9 @@ export default function BookRecommendations() {
   return (
     <div>
       <div>
-        {loading && <p>"Fetching books..."</p>}
+        {loading && <p>Fetching books...</p>}
         {error && <p>{error}</p>}
+        {needsLogin && <Link to="/auth">Please log in...</Link>}
         {recommendations.map((rec, index) => (
           <BookCard
             key={index}
