@@ -12,6 +12,7 @@ export default function BookRecommendations() {
   const [recommendations, setRecommendations] = useState([]);
   const [needsLogin, setNeedsLogin] = useState(false);
   async function handleSubmit(e) {
+    e.preventDefault();
     try {
       setLoading(true);
       setError("");
@@ -59,25 +60,30 @@ export default function BookRecommendations() {
       <div>
         <input
           type="text"
-          placeholder="Book-1"
+          placeholder="Book 1"
           onChange={(e) => setBook1(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Book-2"
+          placeholder="Book 2"
           onChange={(e) => setBook2(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Book-3"
+          placeholder="Book 3"
           onChange={(e) => setBook3(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Genre"
+          placeholder="Genre (optional)"
           onChange={(e) => setGenre(e.target.value)}
         />
-        <button onClick={handleSubmit}>SUBMIT</button>
+        <button
+          onClick={handleSubmit}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Search
+        </button>
       </div>
     </div>
   );
