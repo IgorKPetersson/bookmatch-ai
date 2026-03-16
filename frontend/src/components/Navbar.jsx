@@ -1,7 +1,28 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const linkStyle = "text-gray-700 hover:text-blue-600 transition";
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/books", {
+      credentials: "include"
+    })
+      .then(res => {
+        if (res.ok) setLoggedIn(true);
+      })
+      .catch(() => setLoggedIn(false));
+  }, []);
+
+  async function handleLogout() {
+    await fetch("http://localhost:8000/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    window.location.href = "/";
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
@@ -66,19 +87,30 @@ export default function Navbar() {
           {/* Right Side */}
           <div className="flex items-center gap-4">
 
-            <NavLink
-              to="/auth"
-              className="text-sm text-gray-700 hover:text-blue-600"
-            >
-              Login
-            </NavLink>
+            {loggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-700 hover:text-blue-600"
+              >
+                Logout
+              </button>
+            ) : (
+              <NavLink
+                to="/auth"
+                className="text-sm text-gray-700 hover:text-blue-600"
+              >
+                Login
+              </NavLink>
+            )}
 
+            {!loggedIn && (
             <NavLink
               to="/register"
               className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition"
             >
               Get Started
             </NavLink>
+          )}
 
           </div>
 
