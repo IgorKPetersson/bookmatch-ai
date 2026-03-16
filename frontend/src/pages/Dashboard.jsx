@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [isbn, setIsbn] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
   const [genre, setGenre] = useState("");
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -36,6 +37,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchBooks();
+    setMessage("Book added successfully!");
   }, []);
 
   async function handleAddBook() {
@@ -80,8 +82,10 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        fetchBooks();
-      }
+      setMessage("Book deleted successfully!");
+      setTimeout(() => setMessage(""), 3000);
+      fetchBooks();
+    }
     } catch (err) {
       console.error(err);
     }
@@ -123,6 +127,11 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold mb-8">
         Dashboard
       </h1>
+      {message && (
+        <div className="mb-6 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700">
+          {message}
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-8">
 
