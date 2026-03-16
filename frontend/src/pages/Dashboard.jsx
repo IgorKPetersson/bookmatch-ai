@@ -264,19 +264,6 @@ export default function Dashboard() {
 
       <div className="mt-10">
 
-        <button
-          onClick={async () => {
-            await fetch("http://localhost:8000/logout", {
-              method: "POST",
-              credentials: "include",
-            });
-            navigate("/auth");
-          }}
-          className="text-red-600 hover:underline"
-        >
-          Logout
-        </button>
-
       </div>
 
     </PageContainer>

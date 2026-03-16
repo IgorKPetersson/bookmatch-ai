@@ -55,13 +55,19 @@ export default function Index() {
             </p>
 
             <div className="flex gap-4">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                Try BookMatch
-              </button>
+                <Link
+                  to="/search"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+                >
+                  Try BookMatch
+                </Link>
 
-              <button className="border px-6 py-3 rounded-lg">
-                Learn More
-              </button>
+                <Link
+                  to="/about"
+                  className="border px-6 py-3 rounded-lg"
+                >
+                  Learn More
+                </Link>
             </div>
           </div>
 

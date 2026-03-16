@@ -47,7 +47,7 @@ export default function Auth() {
       const data = await res.json();
 
       if (res.ok) {
-        navigate("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         setError(data?.message || "Invalid email or password");
       }
