@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 import BookCard from "../components/BookCard";
 
@@ -37,21 +38,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-
-      {/* NAVBAR */}
-
-      <nav className="sticky top-0 bg-white/80 backdrop-blur border-b z-10">
-        <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
-          <h1 className="font-bold text-xl">BookMatch AI</h1>
-
-          <div className="flex gap-6 text-sm">
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#">Login</a>
-          </div>
-        </div>
-      </nav>
-
 
       {/* HERO */}
 

@@ -1,3 +1,4 @@
+import PageContainer from "../components/PageContainer";
 import React, { useState } from "react";
 import BookCard from "../components/BookCard";
 import { Link } from "react-router-dom";
@@ -52,8 +53,7 @@ export default function Search() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
-
+    <PageContainer>
       <h1 className="text-3xl font-bold mb-6">
         Book Recommendations
       </h1>
@@ -147,6 +147,6 @@ export default function Search() {
 
       )}
 
-    </div>
+    </PageContainer>
   );
 }

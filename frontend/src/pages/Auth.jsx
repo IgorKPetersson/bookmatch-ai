@@ -1,3 +1,4 @@
+import PageContainer from "../components/PageContainer";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -59,7 +60,8 @@ export default function Auth() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <PageContainer>
+    <div className="flex justify-center pt-20">
       <form
         onSubmit={handleLogin}
         className="bg-white p-8 rounded-xl shadow-md w-96"
@@ -130,6 +132,7 @@ export default function Auth() {
           </Link>
         </p>
       </form>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

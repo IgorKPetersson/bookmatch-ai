@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import PageContainer from "../components/PageContainer";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -45,7 +46,8 @@ function Register() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <PageContainer>
+    <div className="flex justify-center pt-20">
       <form
         onSubmit={handleRegister}
         className="bg-white p-8 rounded shadow-md w-96"
@@ -174,6 +176,7 @@ function Register() {
         {message && <p className="mt-4">{message}</p>}
       </form>
     </div>
+    </PageContainer>
   );
 }
 
