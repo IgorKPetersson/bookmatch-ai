@@ -9,15 +9,13 @@ export default function Navbar() {
         <div className="py-4 flex items-center justify-between">
 
           {/* Logo */}
-          <NavLink
-            to="/"
-            className="text-2xl font-bold text-blue-600"
-          >
+          <NavLink to="/" className="text-2xl font-bold text-blue-600">
             BookMatch AI
           </NavLink>
 
           {/* Center Navigation */}
           <div className="hidden md:flex gap-8 text-sm font-medium">
+
             <NavLink
               to="/"
               className={({ isActive }) =>
@@ -62,6 +60,7 @@ export default function Navbar() {
             >
               Contact
             </NavLink>
+
           </div>
 
           {/* Right Side */}
