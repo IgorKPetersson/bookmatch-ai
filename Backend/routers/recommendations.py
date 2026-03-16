@@ -38,17 +38,32 @@ def get_recommendations(
     recommendations = [
         {
             "title": "Hyperion",
-            "author": "Dan Simmons",
+            "authors": "Dan Simmons",
+            "description": "A pilgrimage to meet the mysterious Shrike on the planet Hyperion.",
+            "isbn": "9780553283686",
+            "genre": "Science Fiction",
+            "release_date": "1989-05-26",
+            "image": "/mock-covers/hyperion.jpg",
             "reason": "Epic science fiction similar to books you like.",
         },
         {
             "title": "Snow Crash",
-            "author": "Neal Stephenson",
+            "authors": "Neal Stephenson",
+            "description": "A hacker and pizza delivery driver uncovers a digital virus.",
+            "isbn": "9780553380958",
+            "genre": "Cyberpunk",
+            "release_date": "1992-06-01",
+            "image": "/mock-covers/snowcrash.jpg",
             "reason": "Fast paced cyberpunk recommendation.",
         },
         {
             "title": "The Left Hand of Darkness",
-            "author": "Ursula K. Le Guin",
+            "authors": "Ursula K. Le Guin",
+            "description": "A diplomat travels to a planet where gender is fluid.",
+            "isbn": "9780441478125",
+            "genre": "Science Fiction",
+            "release_date": "1969-03-01",
+            "image": "/mock-covers/lefthand.jpg",
             "reason": "Thought provoking sci-fi classic.",
         },
     ]
@@ -65,7 +80,7 @@ def get_recommendations(
     for book in recommendations:
         new_book = RecommendedBook(
             title=book["title"],
-            authors=book["author"],
+            authors=book["authors"],
             reason=book["reason"],
             recommendation_list_id=new_list.id,
         )

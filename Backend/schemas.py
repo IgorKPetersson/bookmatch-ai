@@ -87,7 +87,12 @@ class RecommendationRequest(BaseModel):
 
 class RecommendationItem(BaseModel):
     title: str
-    author: str
+    authors: str
+    reason: str
+    isbn: str
+    genre: str
+    release_date: str
+    image: str
     reason: str
 
 
