@@ -1,5 +1,6 @@
+import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Auth from "./pages/Auth";
@@ -10,13 +11,8 @@ import About from "./pages/About";
 export default function App() {
   return (
     <div>
-      <nav>
-        <Link to="/">Index</Link> | <Link to="/search">Search</Link> |{" "}
-        <Link to="/register">Register</Link> | <Link to="/auth">Login</Link> |{" "}
-        <Link to="/dashboard">Dashboard</Link> |{" "}
-        <Link to="/contact">Contact</Link> | <Link to="/about">About</Link>{" "}
-        |{" "}
-      </nav>
+
+      <Navbar />
 
       <Routes>
         <Route path="/" element={<Index />} />
@@ -27,6 +23,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
       </Routes>
+
     </div>
   );
 }
