@@ -221,14 +221,6 @@ export default function Index() {
         </button>
 
       </section>
-
-
-      {/* FOOTER */}
-
-      <footer className="text-center text-sm text-gray-500 py-10">
-        © 2026 BookMatch AI
-      </footer>
-
     </div>
   );
 }

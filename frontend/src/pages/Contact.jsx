@@ -1,3 +1,4 @@
+import PageContainer from "../components/PageContainer";
 import { useState } from "react";
 
 function Contact() {
@@ -22,8 +23,8 @@ function Contact() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-10 rounded shadow-md w-full max-w-3xl">
+    <PageContainer>
+      <div className="bg-white p-10 rounded-xl shadow-md w-full max-w-3xl mx-auto">
 
         <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold">Contact Us</h1>
@@ -90,7 +91,7 @@ function Contact() {
         </div>
 
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

@@ -37,6 +37,15 @@ export default function Navbar() {
             </NavLink>
 
             <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `${linkStyle} ${isActive ? "text-blue-600 font-semibold" : ""}`
+              }
+            >
+              Dashboard
+            </NavLink>
+
+            <NavLink
               to="/about"
               className={({ isActive }) =>
                 `${linkStyle} ${isActive ? "text-blue-600 font-semibold" : ""}`

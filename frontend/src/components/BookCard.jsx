@@ -11,7 +11,7 @@ export default function BookCard({
   reason,
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer">
 
       {/* Image */}
       <div className="aspect-[2/3] bg-gray-100 overflow-hidden">
@@ -26,7 +26,7 @@ export default function BookCard({
       <div className="p-4 flex flex-col flex-grow">
 
         {/* Title */}
-        <h2 className="font-semibold text-base leading-snug line-clamp-2">
+        <h2 className="font-semibold text-base leading-snug line-clamp-2 min-h-[2.5rem]">
           {title}
         </h2>
 
@@ -36,7 +36,7 @@ export default function BookCard({
         </p>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 mt-3 line-clamp-3">
+        <p className="text-sm text-gray-600 mt-3 line-clamp-3 min-h-[4.5rem]">
           {description}
         </p>
 
