@@ -136,14 +136,34 @@ def search_books(query: str, start: int = 0):
     if not query:
         return []
 
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=9&startIndex={start}"
+    url = "https://www.googleapis.com/books/v1/volumes"
+    params = {
+        "q": query,
+        "maxResults": 9,
+        "startIndex": start,
+        "key": "REMOVED",
+    }
 
-    res = requests.get(url)
+    res = requests.get(url, params=params)
     data = res.json()
+
+    print("GOOGLE RESPONSE:", data)
+
+    total = data.get("totalItems")
+
+    # 🔥 only block if total exists AND is exceeded
+    if total and start >= total:
+        return []
+
+    if "error" in data:
+        return data
+
+    if "items" not in data:
+        return []
 
     results = []
 
-    for item in data.get("items", []):
+    for item in data["items"]:
         info = item.get("volumeInfo", {})
 
         results.append(
@@ -154,4 +174,5 @@ def search_books(query: str, start: int = 0):
             }
         )
 
+    # return results
     return results
