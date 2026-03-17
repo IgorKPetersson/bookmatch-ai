@@ -55,7 +55,7 @@ def get_books(
 # Search book
 @router.get("/search")
 def search_books(query: str):
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=5"
+    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=9"
     res = requests.get(url)
     data = res.json()
 

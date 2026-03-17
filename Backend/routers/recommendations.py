@@ -132,11 +132,11 @@ def fetch_recommend_history(
 
 
 @router.get("/search")
-def search_books(query: str):
+def search_books(query: str, start: int = 0):
     if not query:
         return []
 
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=5"
+    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=9&startIndex={start}"
 
     res = requests.get(url)
     data = res.json()
