@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
   const [book1, setBook1] = useState("");
+  const [input1, setInput1] = useState("");
   const [book2, setBook2] = useState("");
   const [book3, setBook3] = useState("");
   const [genre, setGenre] = useState("");
@@ -24,27 +25,36 @@ export default function Search() {
         ? book2
         : activeField === "book3"
         ? book3
-        : "";
+        : null;
 
-    if (query.length < 2) {
+    if (!query) return;
+
+    if (query.length < 3) {
       setResults([]);
       return;
     }
 
     const timeout = setTimeout(() => {
+      console.log("SEARCH FIRED", query, page, new Date().toISOString());
       fetch(
-  `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9 || 0}`
+  `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9}`
 )
   .then((res) => res.json())
   .then((data) => {
-    console.log("RESULTS:", data);
-    setResults(data);
-  })
+  console.log("RESULTS:", data);
+
+  // 🔥 FIX: don't wipe results if API returns empty
+  if (data.length > 0) {
+    if (!data.error) {
+      setResults(data);
+    }
+  }
+})
   .catch((err) => console.error(err));
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [book1, book2, book3, activeField, page]);
+  }, [activeField, page, book1, book2, book3]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -113,7 +123,10 @@ export default function Search() {
             placeholder="Book 1"
             className="border rounded px-3 py-2"
             value={book1}
-            onFocus={() => setActiveField("book1")}
+            onFocus={() => {
+              setActiveField("book1");
+              setPage(0);
+            }}
             onChange={(e) => {
               setPage(0);
               setBook1(e.target.value);
@@ -125,7 +138,10 @@ export default function Search() {
             placeholder="Book 2"
             className="border rounded px-3 py-2"
             value={book2}
-            onFocus={() => setActiveField("book2")}
+            onFocus={() => {
+              setActiveField("book2");
+              setPage(0);
+            }}
             onChange={(e) => {
               setPage(0);
               setBook2(e.target.value);
@@ -137,7 +153,10 @@ export default function Search() {
             placeholder="Book 3"
             className="border rounded px-3 py-2"
             value={book3}
-            onFocus={() => setActiveField("book3")}
+            onFocus={() => {
+              setActiveField("book3");
+              setPage(0);
+            }}
             onChange={(e) => {
               setPage(0);
               setBook3(e.target.value);
@@ -174,6 +193,7 @@ export default function Search() {
                     if (activeField === "book2") setBook2(book.title);
                     if (activeField === "book3") setBook3(book.title);
                     setResults([]);
+                    setActiveField(null);
                   }}
                 >
                   <img
@@ -198,6 +218,7 @@ export default function Search() {
 
               <button
                 onClick={() => setPage((prev) => prev + 1)}
+                disabled={results.length === 0}
                 className="px-4 py-2 bg-gray-200 rounded"
               >
                 Next
