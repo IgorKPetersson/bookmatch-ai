@@ -52,6 +52,16 @@ def get_books(
     return db.query(Book).all()
 
 
+# Search book
+@router.get("/search")
+def search_books(query: str):
+    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=5"
+    res = requests.get(url)
+    data = res.json()
+
+    return data
+
+
 # Get book by id
 @router.get("/{book_id}", response_model=BookRead)
 def get_book(
@@ -102,3 +112,6 @@ def delete_book(
     db.delete(book)
     db.commit()
     return {"message": "Book deleted successfully"}
+
+
+import requests

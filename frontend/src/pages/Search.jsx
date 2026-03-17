@@ -9,7 +9,6 @@ export default function Search() {
   const [book2, setBook2] = useState("");
   const [book3, setBook3] = useState("");
   const [genre, setGenre] = useState("");
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
@@ -58,8 +57,6 @@ export default function Search() {
         Book Recommendations
       </h1>
 
-      {/* Search Section */}
-
       <div className="bg-white shadow rounded-xl p-6 mb-10">
 
         <h2 className="text-xl font-semibold mb-4">
@@ -107,26 +104,18 @@ export default function Search() {
 
       </div>
 
-      {/* Status messages */}
-
       {loading && <p>Fetching books...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {needsLogin && <Link to="/auth">Please log in</Link>}
 
-      {/* Recommendations Grid */}
-
       {recommendations.length > 0 && (
-
         <div>
-
           <h2 className="text-2xl font-semibold mb-6">
             Recommended For You
           </h2>
 
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-
             {recommendations.map((rec, index) => (
-
               <BookCard
                 key={index}
                 title={rec.title}
@@ -138,13 +127,9 @@ export default function Search() {
                 image={rec.image}
                 reason={rec.reason}
               />
-
             ))}
-
           </div>
-
         </div>
-
       )}
 
     </PageContainer>
