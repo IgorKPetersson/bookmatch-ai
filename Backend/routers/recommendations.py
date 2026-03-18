@@ -1,3 +1,8 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv("../.env")
 from typing import List
 
 import requests
@@ -141,7 +146,7 @@ def search_books(query: str, start: int = 0):
         "q": query,
         "maxResults": 9,
         "startIndex": start,
-        "key": "REMOVED",
+        "key": os.getenv("GOOGLE_API_KEY"),
     }
 
     res = requests.get(url, params=params)
