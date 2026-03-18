@@ -180,5 +180,4 @@ def search_books(query: str, start: int = 0, current_user=Depends(get_current_us
             }
         )
 
-    # return results
     return results
