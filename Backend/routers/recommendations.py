@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from fastapi import Depends
 
 load_dotenv("../.env")
 from typing import List
@@ -137,7 +138,7 @@ def fetch_recommend_history(
 
 
 @router.get("/search")
-def search_books(query: str, start: int = 0):
+def search_books(query: str, start: int = 0, current_user=Depends(get_current_user)):
     if not query:
         return []
 
