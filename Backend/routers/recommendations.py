@@ -1,12 +1,11 @@
+import json
 import os
-
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
 from typing import List
 
 import requests
+from anthropic import Anthropic
 from db import get_db
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from models import RecommendationList, RecommendedBook, User
 from schemas import (
@@ -17,7 +16,11 @@ from schemas import (
 from security import get_current_user
 from sqlalchemy.orm import Session
 
+load_dotenv("../.env")
+
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
+
+client = Anthropic()
 
 
 @router.post("", response_model=RecommendationResponse)
@@ -28,76 +31,74 @@ def get_recommendations(
 ):
     favorite_books = request.favorite_books
 
+    recommendations = []
+
     if len(favorite_books) < 1:
         raise HTTPException(
             status_code=400,
             detail="Please provide at least 3 favorite books",
         )
 
-    # 🔥 BUILD A BETTER QUERY
-    query = " ".join(favorite_books)
+    prompt = f"""I need book recommendations for someone who enjoys these books: {", ".join(favorite_books)}.
+{"They prefer the genre: " + request.genre + "." if request.genre else ""}
 
-    if request.genre:
-        query += f" subject:{request.genre}"
+Suggest exactly 3 books they would enjoy. Do NOT recommend any of the books they already listed.
 
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=10"
+Respond ONLY in this exact JSON format, no other text:
+[
+  {{
+    "title": "Book Title",
+    "authors": "Author Name",
+    "reason": "A short sentence explaining why they'd enjoy this book"
+  }}
+]"""
 
-    try:
-        res = requests.get(url, timeout=5)
-    except requests.RequestException:
-        raise HTTPException(status_code=500, detail="Failed to fetch recommendations")
+    message = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
 
-    if res.status_code != 200:
-        raise HTTPException(status_code=500, detail="Google Books API error")
+    claude_response = message.content[0].text
+    print("CLAUDE RESPONSE:", claude_response)
 
-    data = res.json()
+    claude_books = json.loads(claude_response)
+    print("PARSED BOOKS:", claude_books)
 
-    recommendations = []
-    seen_ids = set()
-
-    for item in data.get("items", []):
-        book_id = item.get("id")
-        info = item.get("volumeInfo", {})
-
-        if not book_id or book_id in seen_ids:
+    for book in claude_books:
+        url = "https://www.googleapis.com/books/v1/volumes"
+        params = {
+            "q": book["title"] + " " + book["authors"],
+            "maxResults": 1,
+            "key": os.getenv("GOOGLE_API_KEY"),
+        }
+        print("SEARCHING GOOGLE FOR:", params["q"])
+        try:
+            res = requests.get(url, params=params, timeout=5)
+        except requests.RequestException:
+            print("GOOGLE REQUEST FAILED")
             continue
 
-        title = info.get("title")
-        authors = info.get("authors")
-        categories = info.get("categories")
+        data = res.json()
+        print("GOOGLE DATA:", data)
 
-        # Skip low-quality / incomplete results
-        title = info.get("title")
-        authors = info.get("authors") or ["Unknown"]
-        categories = info.get("categories") or ["Unknown"]
-
-        if not title:
+        if "items" not in data:
+            print("NO ITEMS FOUND")
             continue
 
-        seen_ids.add(book_id)
+        info = data["items"][0].get("volumeInfo", {})
 
         recommendations.append(
             {
-                "title": title,
-                "authors": ", ".join(authors),
+                "title": info.get("title", ""),
+                "authors": ", ".join(info.get("authors", ["Unknown"])),
                 "description": info.get("description", ""),
-                "isbn": "",  # Google Books ISBN extraction can be added later
-                "genre": ", ".join(categories),
+                "isbn": "",
+                "genre": ", ".join(info.get("categories", ["Unknown"])),
                 "release_date": info.get("publishedDate", ""),
                 "image": info.get("imageLinks", {}).get("thumbnail", ""),
-                "reason": f"Based on your interest in {', '.join(favorite_books[:2])}",
+                "reason": book["reason"],
             }
-        )
-
-        # ✅ HARD LIMIT: max 3 results
-        if len(recommendations) >= 3:
-            break
-
-    # If nothing found, fallback (optional but helpful UX)
-    if not recommendations:
-        raise HTTPException(
-            status_code=404,
-            detail="No good recommendations found. Try different books or genre.",
         )
 
     # 💾 SAVE TO DB
