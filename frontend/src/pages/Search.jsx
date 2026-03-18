@@ -5,10 +5,16 @@ import { Link } from "react-router-dom";
 
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
-  const [book1, setBook1] = useState("");
+
   const [input1, setInput1] = useState("");
-  const [book2, setBook2] = useState("");
-  const [book3, setBook3] = useState("");
+  const [selected1, setSelected1] = useState("");
+
+  const [input2, setInput2] = useState("");
+  const [selected2, setSelected2] = useState("");
+
+  const [input3, setInput3] = useState("");
+  const [selected3, setSelected3] = useState("");
+
   const [genre, setGenre] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,11 +26,11 @@ export default function Search() {
   useEffect(() => {
     const query =
       activeField === "book1"
-        ? book1
+        ? input1
         : activeField === "book2"
-        ? book2
+        ? input2
         : activeField === "book3"
-        ? book3
+        ? input3
         : null;
 
     if (!query) return;
@@ -35,26 +41,20 @@ export default function Search() {
     }
 
     const timeout = setTimeout(() => {
-      console.log("SEARCH FIRED", query, page, new Date().toISOString());
       fetch(
-  `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9}`
-)
-  .then((res) => res.json())
-  .then((data) => {
-  console.log("RESULTS:", data);
-
-  // 🔥 FIX: don't wipe results if API returns empty
-  if (data.length > 0) {
-    if (!data.error) {
-      setResults(data);
-    }
-  }
-})
-  .catch((err) => console.error(err));
+        `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.length > 0 && !data.error) {
+            setResults(data);
+          }
+        })
+        .catch((err) => console.error(err));
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [activeField, page, book1, book2, book3]);
+  }, [activeField, page, input1, input2, input3]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -71,7 +71,7 @@ export default function Search() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          favorite_books: [book1, book2, book3],
+          favorite_books: [selected1, selected2, selected3],
           genre: genre,
         }),
       });
@@ -96,18 +96,19 @@ export default function Search() {
     <PageContainer>
       <h1 className="text-3xl font-bold mb-6">Book Recommendations</h1>
 
+      {/* Selected books */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-2">Selected Books</h2>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="border rounded p-3 h-24 flex items-center justify-center text-gray-400">
-            {book1 || "Book 1"}
+            {selected1 || "Book 1"}
           </div>
           <div className="border rounded p-3 h-24 flex items-center justify-center text-gray-400">
-            {book2 || "Book 2"}
+            {selected2 || "Book 2"}
           </div>
           <div className="border rounded p-3 h-24 flex items-center justify-center text-gray-400">
-            {book3 || "Book 3"}
+            {selected3 || "Book 3"}
           </div>
         </div>
       </div>
@@ -122,14 +123,14 @@ export default function Search() {
             type="text"
             placeholder="Book 1"
             className="border rounded px-3 py-2"
-            value={book1}
+            value={input1}
             onFocus={() => {
               setActiveField("book1");
               setPage(0);
             }}
             onChange={(e) => {
               setPage(0);
-              setBook1(e.target.value);
+              setInput1(e.target.value);
             }}
           />
 
@@ -137,14 +138,14 @@ export default function Search() {
             type="text"
             placeholder="Book 2"
             className="border rounded px-3 py-2"
-            value={book2}
+            value={input2}
             onFocus={() => {
               setActiveField("book2");
               setPage(0);
             }}
             onChange={(e) => {
               setPage(0);
-              setBook2(e.target.value);
+              setInput2(e.target.value);
             }}
           />
 
@@ -152,14 +153,14 @@ export default function Search() {
             type="text"
             placeholder="Book 3"
             className="border rounded px-3 py-2"
-            value={book3}
+            value={input3}
             onFocus={() => {
               setActiveField("book3");
               setPage(0);
             }}
             onChange={(e) => {
               setPage(0);
-              setBook3(e.target.value);
+              setInput3(e.target.value);
             }}
           />
 
@@ -183,17 +184,16 @@ export default function Search() {
 
         {results.length > 0 && (
           <>
+            {/* BOOK GRID */}
             <div className="mt-6 grid grid-cols-3 gap-4">
               {results.map((book, i) => (
                 <div
                   key={i}
                   className="border rounded p-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => {
-                    if (activeField === "book1") setBook1(book.title);
-                    if (activeField === "book2") setBook2(book.title);
-                    if (activeField === "book3") setBook3(book.title);
-                    setResults([]);
-                    setActiveField(null);
+                    if (activeField === "book1") setSelected1(book.title);
+                    if (activeField === "book2") setSelected2(book.title);
+                    if (activeField === "book3") setSelected3(book.title);
                   }}
                 >
                   <img
@@ -202,14 +202,19 @@ export default function Search() {
                     className="w-full h-40 object-cover mb-2"
                   />
                   <div className="font-semibold text-sm">{book.title}</div>
-                  <div className="text-xs text-gray-500">{book.authors}</div>
+                  <div className="text-xs text-gray-500">
+                    {book.authors}
+                  </div>
                 </div>
               ))}
             </div>
 
+            {/* BUTTONS BELOW GRID */}
             <div className="mt-4 flex gap-3">
               <button
-                onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                onClick={() =>
+                  setPage((prev) => Math.max(prev - 1, 0))
+                }
                 className="px-4 py-2 bg-gray-200 rounded"
                 disabled={page === 0}
               >
@@ -234,21 +239,13 @@ export default function Search() {
 
       {recommendations.length > 0 && (
         <div>
-          <h2 className="text-2xl font-semibold mb-6">Recommended For You</h2>
+          <h2 className="text-2xl font-semibold mb-6">
+            Recommended For You
+          </h2>
 
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {recommendations.map((rec, index) => (
-              <BookCard
-                key={index}
-                title={rec.title}
-                authors={rec.authors}
-                description={rec.description}
-                isbn={rec.isbn}
-                genre={rec.genre}
-                release_date={rec.release_date}
-                image={rec.image}
-                reason={rec.reason}
-              />
+              <BookCard key={index} {...rec} />
             ))}
           </div>
         </div>
