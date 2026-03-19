@@ -155,3 +155,6 @@ struktur.txt*.zip
 
 # Design reference assets
 Firstdesign/
+
+# backupfile
+.jsx_org
