@@ -113,7 +113,29 @@ class RecommendedListRead(BaseModel):
     id: int
     books: list[RecommendedBookRead]
     input_books: str
-    input_genre: str
+    input_genre: Optional[str]
 
     class Config:
         from_attributes = True
+
+
+class RecommendationRequestSubBooks(BaseModel):
+    favorite_books: List[str]
+    genre: Optional[str] = None
+    rejected_books: List[str]
+    keep_books: List[str]
+
+
+class SaveBook(BaseModel):
+    title: str
+    authors: str
+    description: str
+    isbn: str
+    release_date: str
+    genre: str
+
+
+class SaveBookList(BaseModel):
+    book_list_id: Optional[int] = None
+    name: Optional[str] = None
+    books: List[SaveBook]
