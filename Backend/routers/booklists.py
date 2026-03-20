@@ -149,3 +149,38 @@ def get_books_in_booklist(
     items = db.query(BookListItem).filter(BookListItem.booklist_id == booklist_id).all()
 
     return items
+
+
+@router.delete(
+    "/{booklist_id}/books/{book_id}",
+    tags=["BookListItems"],
+)
+def delete_booklist_item(
+    booklist_id: int,
+    book_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    booklist = (
+        db.query(BookList)
+        .filter(BookList.id == booklist_id, BookList.user_id == current_user.id)
+        .first()
+    )
+
+    if not booklist:
+        raise HTTPException(status_code=404, detail="BookList not found")
+
+    book = (
+        db.query(BookListItem)
+        .filter(
+            BookListItem.booklist_id == booklist.id, BookListItem.book_id == book_id
+        )
+        .first()
+    )
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    db.delete(book)
+    db.commit()
+    return {"message": "Book deleted"}
