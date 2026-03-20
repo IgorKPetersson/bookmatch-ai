@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from pydantic import BaseModel
 
 
@@ -62,6 +64,16 @@ class BookListRead(BaseModel):
         from_attributes = True
 
 
+class BookListWithBooksRead(BaseModel):
+    id: int
+    name: str
+    user_id: int
+    books: List[BookRead]
+
+    class Config:
+        from_attributes = True
+
+
 class BookListItemCreate(BaseModel):
     book_id: int
 
@@ -73,11 +85,6 @@ class BookListItemRead(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-from typing import List, Optional
-
-from pydantic import BaseModel
 
 
 class RecommendationRequest(BaseModel):

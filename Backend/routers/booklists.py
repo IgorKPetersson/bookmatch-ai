@@ -12,6 +12,7 @@ from schemas import (
     BookListItemCreate,
     BookListItemRead,
     BookListRead,
+    BookListWithBooksRead,
 )
 from security import (
     get_current_user,
@@ -39,7 +40,7 @@ def create_booklist(
     return new_list
 
 
-@router.get("", response_model=List[BookListRead], tags=["BookLists"])
+@router.get("", response_model=List[BookListWithBooksRead], tags=["BookLists"])
 def get_my_booklists(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),

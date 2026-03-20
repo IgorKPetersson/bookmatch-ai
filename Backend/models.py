@@ -25,10 +25,6 @@ class Book(Base):
     genre = Column(String, index=True)
 
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-
-
 class BookList(Base):
     __tablename__ = "booklists"
 
@@ -38,6 +34,10 @@ class BookList(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User", backref="booklists")
+
+    @property
+    def books(self):
+        return [item.book for item in self.items]
 
 
 class BookListItem(Base):
