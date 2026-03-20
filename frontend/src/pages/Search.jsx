@@ -31,10 +31,10 @@ export default function Search() {
       activeField === "book1"
         ? input1
         : activeField === "book2"
-        ? input2
-        : activeField === "book3"
-        ? input3
-        : null;
+          ? input2
+          : activeField === "book3"
+            ? input3
+            : null;
 
     if (!query) return;
 
@@ -46,7 +46,7 @@ export default function Search() {
     const timeout = setTimeout(() => {
       fetch(
         `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9}`,
-        { credentials: "include" }
+        { credentials: "include" },
       )
         .then((res) => res.json())
         .then((data) => {
@@ -73,7 +73,9 @@ export default function Search() {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          favorite_books: [selected1, selected2, selected3],
+          favorite_books: [selected1, selected2, selected3]
+            .filter((book) => book !== null)
+            .map((book) => book.title),
           genre,
         }),
       });
@@ -95,7 +97,7 @@ export default function Search() {
   }
 
   return (
-      <PageContainer>
+    <PageContainer>
       <h1 className="text-3xl font-bold mb-6">Book Recommendations</h1>
 
       <div className="mb-6 rounded-xl bg-blue-50 border border-blue-100 p-4 text-sm text-gray-700">
@@ -154,9 +156,7 @@ export default function Search() {
                 </>
               ) : (
                 <div className="p-[2px] flex items-center col-span-3">
-                  <span className="text-gray-400 text-sm">
-                    Book {i + 1}
-                  </span>
+                  <span className="text-gray-400 text-sm">Book {i + 1}</span>
                 </div>
               )}
             </div>
@@ -171,8 +171,7 @@ export default function Search() {
         </h2>
 
         <p className="text-sm text-gray-600 mb-4">
-          Type to search, then click a result to add or replace a selected
-          book.
+          Type to search, then click a result to add or replace a selected book.
         </p>
 
         <div className="grid md:grid-cols-4 gap-4">
@@ -240,9 +239,7 @@ export default function Search() {
                     className="w-full h-40 object-cover mb-2"
                   />
                   <div className="font-semibold text-sm">{book.title}</div>
-                  <div className="text-xs text-gray-500">
-                    {book.authors}
-                  </div>
+                  <div className="text-xs text-gray-500">{book.authors}</div>
                 </div>
               ))}
             </div>
@@ -265,7 +262,6 @@ export default function Search() {
             </div>
           </>
         )}
-
       </div>
 
       {loading && <p>Fetching books...</p>}
@@ -274,9 +270,7 @@ export default function Search() {
 
       {recommendations.length > 0 && (
         <div>
-          <h2 className="text-2xl font-semibold mb-6">
-            Recommended For You
-          </h2>
+          <h2 className="text-2xl font-semibold mb-6">Recommended For You</h2>
 
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {recommendations.map((rec, i) => (
