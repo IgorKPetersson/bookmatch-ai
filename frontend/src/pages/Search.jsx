@@ -1,7 +1,16 @@
-import PageContainer from "../components/PageContainer";
-import React, { useState, useEffect } from "react";
-import BookCard from "../components/BookCard";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import PageContainer from "../components/PageContainer";
+
+const DEFAULT_LISTS = [
+  { id: 1, name: "Want to Read" },
+  { id: 2, name: "Fantasy" },
+  { id: 3, name: "Mystery" },
+  { id: 4, name: "Romance" },
+  { id: 5, name: "Thrillers" },
+  { id: 6, name: "Science Fiction" },
+  { id: 7, name: "Finished Books" },
+];
 
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
@@ -22,38 +31,27 @@ export default function Search() {
   const [needsLogin, setNeedsLogin] = useState(false);
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(0);
+  const [selectedListPerRec, setSelectedListPerRec] = useState({});
 
   const activeBookNumber =
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
   useEffect(() => {
     const query =
-      activeField === "book1"
-        ? input1
-        : activeField === "book2"
-          ? input2
-          : activeField === "book3"
-            ? input3
-            : null;
+      activeField === "book1" ? input1 : activeField === "book2" ? input2 : input3;
 
-    if (!query) return;
-
-    if (query.length < 3) {
+    if (!query || query.length < 3) {
       setResults([]);
       return;
     }
 
     const timeout = setTimeout(() => {
       fetch(
-        `http://localhost:8000/recommendations/search?query=${query}&start=${page * 9}`,
-        { credentials: "include" },
+        `http://localhost:8000/recommendations/search?query=${query}&start=${page * 8}`,
+        { credentials: "include" }
       )
         .then((res) => res.json())
-        .then((data) => {
-          if (data.length > 0 && !data.error) {
-            setResults(data);
-          }
-        })
+        .then((data) => { if (data.length > 0 && !data.error) setResults(data); })
         .catch(console.error);
     }, 300);
 
@@ -62,7 +60,6 @@ export default function Search() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
     try {
       setLoading(true);
       setError("");
@@ -73,9 +70,7 @@ export default function Search() {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          favorite_books: [selected1, selected2, selected3]
-            .filter((book) => book !== null)
-            .map((book) => book.title),
+          favorite_books: [selected1, selected2, selected3].filter(Boolean).map((b) => b.title),
           genre,
         }),
       });
@@ -83,7 +78,8 @@ export default function Search() {
       const data = await res.json();
 
       if (res.ok) {
-        setRecommendations(data.recommendations);
+        setRecommendations(data.recommendations.slice(0, 2));
+        setSelectedListPerRec({});
       } else if (res.status === 401) {
         setNeedsLogin(true);
       } else {
@@ -96,67 +92,59 @@ export default function Search() {
     }
   }
 
+  function handleDismiss(i) {
+    setRecommendations((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  function handleAddToList(rec, i) {
+    const listId = selectedListPerRec[i] ?? DEFAULT_LISTS[0].id;
+    const listName = DEFAULT_LISTS.find((l) => l.id === listId)?.name;
+    alert(`"${rec.title}" added to "${listName}"`);
+    handleDismiss(i);
+  }
+
   return (
     <PageContainer>
-      <h1 className="text-3xl font-bold mb-6">Book Recommendations</h1>
+      <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#1a1a1a", marginBottom: "24px" }}>
+        Book Recommendations
+      </h1>
 
-      <div className="mb-6 rounded-xl bg-blue-50 border border-blue-100 p-4 text-sm text-gray-700">
-        <p className="mb-2">
-          Search for one, two, or three books you already enjoy to get AI-based
-          recommendations tailored to your taste.
-        </p>
-        <p className="mb-2">
-          Start typing in any book field below and choose a title from the
-          search results. You can use just one book, combine two favorites, or
-          select three books for a broader recommendation profile.
-        </p>
-        <p>
-          Genre filtering is shown as an optional field and is planned to work
-          together with your selected books, so you will later be able to
-          combine favorite titles with genres for even more precise
-          recommendations.
-        </p>
+      <div style={{
+        background: "#eef2ff", border: "1px solid #c7d2fe", borderRadius: "12px",
+        padding: "16px 20px", fontSize: "13px", color: "#555", marginBottom: "24px", lineHeight: 1.7,
+      }}>
+        Search for one, two, or three books you enjoy — then click <strong>Get Recommendations</strong> and
+        the AI will suggest books tailored to your taste. You can add them directly to any of your lists.
       </div>
 
       {/* Selected books */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-2">Selected Books</h2>
-
-        <div className="grid grid-cols-3 gap-4">
+      <div style={{ marginBottom: "20px" }}>
+        <p style={{ fontSize: "13px", fontWeight: 600, color: "#888", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          Selected Books
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
           {[selected1, selected2, selected3].map((selected, i) => (
-            <div className="border rounded h-20 grid grid-cols-[auto_1fr_auto]">
+            <div key={i} style={{
+              border: "1px solid #e8e2da", borderRadius: "10px", height: "72px",
+              display: "grid", gridTemplateColumns: selected ? "auto 1fr auto" : "1fr",
+              background: "white",
+            }}>
               {selected ? (
                 <>
-                  <div className="flex items-center">
-                    <img
-                      src={selected.image}
-                      alt=""
-                      className="h-16 w-14 object-cover rounded block m-[6px]"
-                    />
-                  </div>
-
-                  <div className="p-[2px] flex items-center">
-                    <span className="text-sm line-clamp-2">
+                  <img src={selected.image} alt="" style={{ height: "60px", width: "44px", objectFit: "cover", borderRadius: "6px", margin: "6px" }} />
+                  <div style={{ padding: "4px 0", display: "flex", alignItems: "center" }}>
+                    <span style={{ fontSize: "13px", color: "#1a1a1a", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {selected.title}
                     </span>
                   </div>
-
-                  <div className="flex items-start justify-end p-1">
-                    <button
-                      type="button"
-                      className="text-xs text-gray-500 hover:text-red-600"
-                      onClick={() => {
-                        [setInput1, setInput2, setInput3][i]("");
-                        [setSelected1, setSelected2, setSelected3][i](null);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => { [setInput1, setInput2, setInput3][i](""); [setSelected1, setSelected2, setSelected3][i](null); }}
+                    style={{ background: "none", border: "none", color: "#bbb", cursor: "pointer", padding: "6px 10px 0 0", fontSize: "16px", alignSelf: "start" }}
+                  >×</button>
                 </>
               ) : (
-                <div className="p-[2px] flex items-center col-span-3">
-                  <span className="text-gray-400 text-sm">Book {i + 1}</span>
+                <div style={{ display: "flex", alignItems: "center", padding: "0 14px" }}>
+                  <span style={{ fontSize: "13px", color: "#bbb" }}>Book {i + 1}</span>
                 </div>
               )}
             </div>
@@ -165,120 +153,159 @@ export default function Search() {
       </div>
 
       {/* Search inputs */}
-      <div className="bg-white shadow rounded-xl p-6 mb-10">
-        <h2 className="text-xl font-semibold mb-4">
-          Find Books You Might Like
-        </h2>
-
-        <p className="text-sm text-gray-600 mb-4">
-          Type to search, then click a result to add or replace a selected book.
-        </p>
-
-        <div className="grid md:grid-cols-4 gap-4">
+      <div style={{
+        background: "white", borderRadius: "16px", padding: "24px",
+        boxShadow: "0 1px 6px rgba(0,0,0,0.06)", marginBottom: "28px",
+      }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "16px" }}>
           {[input1, input2, input3].map((input, i) => (
             <input
               key={i}
               type="text"
               placeholder={`Book ${i + 1}`}
-              className="border rounded px-3 py-2"
               value={input}
-              onFocus={() => {
-                setActiveField(`book${i + 1}`);
-                setPage(0);
-              }}
+              onFocus={() => { setActiveField(`book${i + 1}`); setPage(0); }}
               onChange={(e) => {
                 const value = e.target.value;
                 setPage(0);
                 [setInput1, setInput2, setInput3][i](value);
-
-                if (!value.trim()) {
-                  [setSelected1, setSelected2, setSelected3][i](null);
-                }
+                if (!value.trim()) [setSelected1, setSelected2, setSelected3][i](null);
               }}
+              style={{ border: "1px solid #e0dbd3", borderRadius: "8px", padding: "10px 14px", fontSize: "14px", outline: "none", color: "#1a1a1a" }}
             />
           ))}
-
           <input
             type="text"
             placeholder="Genre (optional)"
-            className="border rounded px-3 py-2"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
+            style={{ border: "1px solid #e0dbd3", borderRadius: "8px", padding: "10px 14px", fontSize: "14px", outline: "none", color: "#1a1a1a" }}
           />
         </div>
 
-        <p className="mt-4 text-sm text-blue-700">
-          Results for Book {activeBookNumber}
-        </p>
-
-        <div className="mt-4">
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+            disabled={loading}
+            style={{
+              background: "#4f6ef7", color: "white", border: "none",
+              borderRadius: "10px", padding: "10px 24px",
+              fontSize: "14px", fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.7 : 1,
+            }}
           >
-            Get Recommendations
+            {loading ? "Finding books…" : "Get Recommendations"}
           </button>
+          {error && <span style={{ fontSize: "13px", color: "#e57373" }}>{error}</span>}
+          {needsLogin && <Link to="/auth" style={{ fontSize: "13px", color: "#4f6ef7" }}>Please log in</Link>}
+        </div>
+      </div>
+
+      {/* Two-column: search results + AI recommendations */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "28px", alignItems: "start" }}>
+
+        {/* LEFT — Search results */}
+        <div>
+          {results.length > 0 ? (
+            <>
+              <p style={{ fontSize: "13px", fontWeight: 600, color: "#888", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Results for Book {activeBookNumber}
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+                {results.map((book, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      if (activeField === "book1") setSelected1(book);
+                      if (activeField === "book2") setSelected2(book);
+                      if (activeField === "book3") setSelected3(book);
+                    }}
+                    style={{
+                      background: "white", borderRadius: "12px", overflow: "hidden",
+                      boxShadow: "0 1px 6px rgba(0,0,0,0.06)", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: "12px", padding: "10px",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 3px 12px rgba(0,0,0,0.12)"}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 1px 6px rgba(0,0,0,0.06)"}
+                  >
+                    <img src={book.image} alt="" style={{ width: "44px", height: "64px", objectFit: "cover", borderRadius: "6px", flexShrink: 0 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: "13px", fontWeight: 600, color: "#1a1a1a", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{book.title}</p>
+                      <p style={{ fontSize: "12px", color: "#999", margin: "3px 0 0" }}>{book.authors}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+                <button
+                  onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                  disabled={page === 0}
+                  style={{ padding: "8px 18px", borderRadius: "8px", border: "1px solid #e0dbd3", background: "white", fontSize: "13px", cursor: page === 0 ? "not-allowed" : "pointer", color: page === 0 ? "#ccc" : "#555" }}
+                >Previous</button>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  style={{ padding: "8px 18px", borderRadius: "8px", border: "1px solid #e0dbd3", background: "white", fontSize: "13px", cursor: "pointer", color: "#555" }}
+                >Next</button>
+              </div>
+            </>
+          ) : (
+            <div style={{ background: "white", borderRadius: "14px", padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+              <p style={{ fontSize: "14px", color: "#bbb" }}>Start typing to search for books</p>
+            </div>
+          )}
         </div>
 
-        {results.length > 0 && (
-          <>
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              {results.map((book, i) => (
-                <div
-                  key={i}
-                  className="border rounded p-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => {
-                    if (activeField === "book1") setSelected1(book);
-                    if (activeField === "book2") setSelected2(book);
-                    if (activeField === "book3") setSelected3(book);
-                  }}
-                >
-                  <img
-                    src={book.image}
-                    alt=""
-                    className="w-full h-40 object-cover mb-2"
-                  />
-                  <div className="font-semibold text-sm">{book.title}</div>
-                  <div className="text-xs text-gray-500">{book.authors}</div>
+        {/* RIGHT — AI Recommendations */}
+        <div>
+          <p style={{ fontSize: "13px", fontWeight: 600, color: "#888", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            AI Recommendations for You
+          </p>
+
+          {recommendations.length === 0 ? (
+            <div style={{ background: "white", borderRadius: "14px", padding: "40px 20px", textAlign: "center", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+              <p style={{ fontSize: "13px", color: "#bbb", lineHeight: 1.6 }}>
+                Select a book above and click<br /><strong style={{ color: "#888" }}>Get Recommendations</strong>
+              </p>
+            </div>
+          ) : (
+            <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", padding: "16px", display: "flex", gap: "14px" }}>
+              {recommendations.map((rec, i) => (
+                <div key={i} style={{ flex: 1, background: "white", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.08)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                  <img src={rec.image} alt={rec.title} style={{ width: "100%", height: "180px", objectFit: "cover" }} />
+                  <div style={{ padding: "14px", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 3px", lineHeight: 1.3 }}>{rec.title}</p>
+                    <p style={{ fontSize: "12px", color: "#999", margin: "0 0 8px" }}>{rec.authors}</p>
+                    <p style={{ fontSize: "12px", color: "#666", lineHeight: 1.5, margin: "0 0 14px", flex: 1 }}>{rec.reason}</p>
+
+                    <select
+                      value={selectedListPerRec[i] ?? DEFAULT_LISTS[0].id}
+                      onChange={(e) => setSelectedListPerRec((prev) => ({ ...prev, [i]: Number(e.target.value) }))}
+                      style={{ width: "100%", border: "1px solid #e0dbd3", borderRadius: "8px", padding: "7px 10px", fontSize: "12px", color: "#555", background: "white", marginBottom: "10px", outline: "none" }}
+                    >
+                      {DEFAULT_LISTS.map((l) => (
+                        <option key={l.id} value={l.id}>{l.name}</option>
+                      ))}
+                    </select>
+
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        onClick={() => handleAddToList(rec, i)}
+                        style={{ flex: 1, background: "#4f6ef7", color: "white", border: "none", borderRadius: "8px", padding: "8px 0", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}
+                      >Add to List</button>
+                      <button
+                        onClick={() => handleDismiss(i)}
+                        style={{ flex: 1, background: "#f2ede6", color: "#777", border: "none", borderRadius: "8px", padding: "8px 0", fontSize: "12px", fontWeight: 500, cursor: "pointer" }}
+                      >Dismiss</button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
-
-            <div className="mt-4 flex gap-3">
-              <button
-                onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                className="px-4 py-2 bg-gray-200 rounded"
-                disabled={page === 0}
-              >
-                Previous
-              </button>
-
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 bg-gray-200 rounded"
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {loading && <p>Fetching books...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {needsLogin && <Link to="/auth">Please log in</Link>}
-
-      {recommendations.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-6">Recommended For You</h2>
-
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {recommendations.map((rec, i) => (
-              <BookCard key={i} {...rec} />
-            ))}
-          </div>
+          )}
         </div>
-      )}
+
+      </div>
     </PageContainer>
   );
 }
