@@ -20,7 +20,7 @@ export default function Dashboard() {
     setLists(lists.map((l) => (l.id === id ? { ...l, open: !l.open } : l)));
   }
 
-  function handleCreateList() {
+  async function handleCreateList() {
     if (!newListName.trim()) return;
     setLists([
       ...lists,
