@@ -291,7 +291,7 @@ def fetch_recommend_history(
 
 
 @router.get("/search")
-def search_books(query: str, start: int = 0):
+def search_books(query: str, start: int = 0, current_user=Depends(get_current_user)):
     if not query:
         return []
 
@@ -333,5 +333,4 @@ def search_books(query: str, start: int = 0):
             }
         )
 
-    # return results
     return results

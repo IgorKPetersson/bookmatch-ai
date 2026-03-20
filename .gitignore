@@ -152,3 +152,9 @@ funktionalitet.txt
 skolans_krav.txt
 structure.txt
 struktur.txt*.zip
+
+# Design reference assets
+Firstdesign/
+
+# backupfile
+.jsx_org
