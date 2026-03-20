@@ -47,7 +47,7 @@ def get_recommendations(
     if len(favorite_books) < 1:
         raise HTTPException(
             status_code=400,
-            detail="Please provide at least 3 favorite books",
+            detail="Please provide at least 1 book.",
         )
 
     prompt = f"""I need book recommendations for someone who enjoys these books: {", ".join(favorite_books)}.
