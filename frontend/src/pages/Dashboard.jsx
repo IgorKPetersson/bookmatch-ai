@@ -11,16 +11,20 @@ const MOCK_LISTS = [
       { id: 2, title: "Piranesi", author: "Susanna Clarke", cover: "https://covers.openlibrary.org/b/isbn/9781526622426-M.jpg" },
     ],
   },
+  { id: 2, name: "Fantasy", open: false, books: [] },
+  { id: 3, name: "Mystery", open: false, books: [] },
+  { id: 4, name: "Romance", open: false, books: [] },
+  { id: 5, name: "Thrillers", open: false, books: [] },
   {
-    id: 2,
-    name: "Sci-Fi Picks",
+    id: 6,
+    name: "Science Fiction",
     open: false,
     books: [
       { id: 5, title: "The Expanse", author: "James S.A. Corey", cover: "https://covers.openlibrary.org/b/isbn/9780316129084-M.jpg" },
     ],
   },
   {
-    id: 3,
+    id: 7,
     name: "Finished Books",
     open: true,
     books: [
@@ -31,26 +35,14 @@ const MOCK_LISTS = [
   },
 ];
 
-const MOCK_RECOMMENDATIONS = [
-  {
-    id: 1,
-    title: "Altered Carbon",
-    author: "Richard K. Morgan",
-    cover: "https://covers.openlibrary.org/b/isbn/9780345457684-M.jpg",
-    reason: "A gripping cyberpunk thriller you'll love",
-  },
-  {
-    id: 2,
-    title: "Foundation",
-    author: "Isaac Asimov",
-    cover: "https://covers.openlibrary.org/b/isbn/9780553293357-M.jpg",
-    reason: "A sci-fi classic with epic world-building",
-  },
-];
 
 export default function Dashboard() {
   const [lists, setLists] = useState(MOCK_LISTS);
-  const [recommendations, setRecommendations] = useState(MOCK_RECOMMENDATIONS);
+
+  const recentlyAdded = lists
+    .flatMap((l) => l.books.map((b) => ({ ...b, listName: l.name })))
+    .slice(-2)
+    .reverse();
   const [newListName, setNewListName] = useState("");
   const [showNewListInput, setShowNewListInput] = useState(false);
   const [movingBook, setMovingBook] = useState(null);
@@ -90,19 +82,6 @@ export default function Dashboard() {
     setMovingBook(null);
   }
 
-  function handleAddRecommendation(rec) {
-    const targetList = lists[0];
-    if (!targetList) return;
-    const newBook = { id: rec.id + 1000, title: rec.title, author: rec.author, cover: rec.cover };
-    setLists(lists.map((l) =>
-      l.id === targetList.id ? { ...l, books: [...l.books, newBook] } : l
-    ));
-    setRecommendations(recommendations.filter((r) => r.id !== rec.id));
-  }
-
-  function handleDismiss(id) {
-    setRecommendations(recommendations.filter((r) => r.id !== id));
-  }
 
   return (
     <div style={{ backgroundColor: "#f7f3ee", minHeight: "100vh" }}>
@@ -315,22 +294,22 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* RIGHT — AI Recommendations */}
+          {/* RIGHT — Recently Saved */}
           <div>
             <h2 style={{ fontSize: "22px", fontWeight: 700, color: "#1a1a1a", marginBottom: "20px" }}>
-              AI Recommendations for You
+              Recently Saved
             </h2>
 
-            {recommendations.length === 0 ? (
+            {recentlyAdded.length === 0 ? (
               <div style={{
                 background: "white", borderRadius: "14px", padding: "40px 20px",
                 textAlign: "center", boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
               }}>
                 <p style={{ fontSize: "14px", color: "#aaa", marginBottom: "12px" }}>
-                  No recommendations right now.
+                  No books saved yet.
                 </p>
                 <Link to="/search" style={{ fontSize: "13px", color: "#4f6ef7", textDecoration: "none", fontWeight: 500 }}>
-                  Run a search to get new ones
+                  Search for books
                 </Link>
               </div>
             ) : (
@@ -339,8 +318,8 @@ export default function Dashboard() {
                 boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                 padding: "16px", display: "flex", gap: "14px",
               }}>
-                {recommendations.map((rec) => (
-                  <div key={rec.id} style={{
+                {recentlyAdded.map((book) => (
+                  <div key={book.id} style={{
                     flex: 1,
                     background: "white",
                     borderRadius: "16px",
@@ -350,40 +329,18 @@ export default function Dashboard() {
                     flexDirection: "column",
                   }}>
                     <img
-                      src={rec.cover}
-                      alt={rec.title}
+                      src={book.cover}
+                      alt={book.title}
                       style={{ width: "100%", height: "200px", objectFit: "cover" }}
                     />
                     <div style={{ padding: "14px 14px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
                       <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px", lineHeight: 1.3 }}>
-                        {rec.title}
+                        {book.title}
                       </p>
-                      <p style={{ fontSize: "12px", color: "#999", margin: "0 0 8px" }}>{rec.author}</p>
-                      <p style={{ fontSize: "12px", color: "#666", lineHeight: 1.5, margin: "0 0 14px", flex: 1 }}>
-                        {rec.reason}
+                      <p style={{ fontSize: "12px", color: "#999", margin: "0 0 8px" }}>{book.author}</p>
+                      <p style={{ fontSize: "12px", color: "#b5a99a", lineHeight: 1.5, margin: "0 0 14px", flex: 1 }}>
+                        {book.listName}
                       </p>
-                      <div style={{ display: "flex", gap: "8px" }}>
-                        <button
-                          onClick={() => handleAddRecommendation(rec)}
-                          style={{
-                            flex: 1, background: "#4f6ef7", color: "white",
-                            border: "none", borderRadius: "8px", padding: "8px 0",
-                            fontSize: "12px", fontWeight: 600, cursor: "pointer",
-                          }}
-                        >
-                          Add to List
-                        </button>
-                        <button
-                          onClick={() => handleDismiss(rec.id)}
-                          style={{
-                            flex: 1, background: "#f2ede6", color: "#777",
-                            border: "none", borderRadius: "8px", padding: "8px 0",
-                            fontSize: "12px", fontWeight: 500, cursor: "pointer",
-                          }}
-                        >
-                          Dismiss
-                        </button>
-                      </div>
                     </div>
                   </div>
                 ))}

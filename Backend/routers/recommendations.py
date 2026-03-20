@@ -24,6 +24,7 @@ from schemas import (
     SaveBook,
     SaveBookList,
 )
+
 from security import get_current_user
 from sqlalchemy.orm import Session
 
@@ -278,6 +279,18 @@ def save_booklist(
     return book_list
 
 
+@router.get("/lists", response_model=List[BookListRead])
+def get_user_lists(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return (
+        db.query(BookList)
+        .filter(BookList.user_id == current_user.id)
+        .all()
+    )
+
+
 @router.get("/history", response_model=List[RecommendedListRead])
 def fetch_recommend_history(
     db: Session = Depends(get_db),
@@ -298,7 +311,7 @@ def search_books(query: str, start: int = 0, current_user=Depends(get_current_us
     url = "https://www.googleapis.com/books/v1/volumes"
     params = {
         "q": query,
-        "maxResults": 9,
+        "maxResults": 8,
         "startIndex": start,
         "key": os.getenv("GOOGLE_API_KEY"),
     }
