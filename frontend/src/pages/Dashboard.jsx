@@ -47,15 +47,23 @@ export default function Dashboard() {
   }
 
   function handleDeleteList(listId) {
-    setLists(lists.filter((l) => l.id !== listId));
+    fetch(`http://localhost:8000/booklists/${listId}`, {
+      method: "DELETE",
+      credentials: "include",
+    }).then(() => setLists(lists.filter((l) => l.id !== listId)));
   }
 
   function handleRemoveBook(listId, bookId) {
-    setLists(
-      lists.map((l) =>
-        l.id === listId
-          ? { ...l, books: l.books.filter((b) => b.id !== bookId) }
-          : l,
+    fetch(`http://localhost:8000/booklists/${listId}/books/${bookId}`, {
+      method: "DELETE",
+      credentials: "include",
+    }).then(() =>
+      setLists(
+        lists.map((l) =>
+          l.id === listId
+            ? { ...l, books: l.books.filter((b) => b.id !== bookId) }
+            : l,
+        ),
       ),
     );
   }
@@ -63,15 +71,30 @@ export default function Dashboard() {
   function handleMoveBook(targetListId) {
     if (!movingBook) return;
     const { book, fromListId } = movingBook;
-    setLists(
-      lists.map((l) => {
-        if (l.id === fromListId)
-          return { ...l, books: l.books.filter((b) => b.id !== book.id) };
-        if (l.id === targetListId) return { ...l, books: [...l.books, book] };
-        return l;
-      }),
-    );
-    setMovingBook(null);
+    fetch(`http://localhost:8000/booklists/${fromListId}/books/${book.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    })
+      .then(() =>
+        fetch(`http://localhost:8000/booklists/${targetListId}/books`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/JSON" },
+          body: JSON.stringify({ book_id: book.id }),
+        }),
+      )
+      .then(() => {
+        setLists(
+          lists.map((l) => {
+            if (l.id === fromListId)
+              return { ...l, books: l.books.filter((b) => b.id !== book.id) };
+            if (l.id === targetListId)
+              return { ...l, books: [...l.books, book] };
+            return l;
+          }),
+        );
+        setMovingBook(null);
+      });
   }
 
   useEffect(() => {
