@@ -96,6 +96,7 @@ class RecommendationItem(BaseModel):
     title: str
     authors: str
     reason: str
+    description: str
     isbn: str
     genre: str
     release_date: str
