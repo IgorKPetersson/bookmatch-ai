@@ -25,6 +25,9 @@ export default function Search() {
 
   const [lists, setLists] = useState([]);
 
+  const [submittedBooks, setSubmittedBooks] = useState([]);
+  const [submittedGenre, setSubmittedGenre] = useState("");
+
   const activeBookNumber =
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
@@ -68,18 +71,20 @@ export default function Search() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const books = [selected1, selected2, selected3]
+        .filter(Boolean)
+        .map((b) => b.title);
       setLoading(true);
       setError("");
       setNeedsLogin(false);
-
+      setSubmittedBooks(books);
+      setSubmittedGenre(genre);
       const res = await fetch("http://localhost:8000/recommendations", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          favorite_books: [selected1, selected2, selected3]
-            .filter(Boolean)
-            .map((b) => b.title),
+          favorite_books: books,
           genre,
         }),
       });
@@ -102,7 +107,26 @@ export default function Search() {
   }
 
   function handleDismiss(i) {
-    setRecommendations((prev) => prev.filter((_, idx) => idx !== i));
+    fetch("http://localhost:8000/recommendations/reshuffle", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/JSON" },
+      body: JSON.stringify({
+        favorite_books: submittedBooks,
+        genre: submittedGenre,
+        rejected_books: [recommendations[i].title],
+        keep_books: recommendations
+          .filter((_, idx) => idx !== i)
+          .map((rec) => rec.title),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const newBook = data.recommendations[0];
+        setRecommendations((prev) =>
+          prev.map((rec, idx) => (idx === i ? newBook : rec)),
+        );
+      });
   }
 
   async function handleAddToList(rec, i) {
