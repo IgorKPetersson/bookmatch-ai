@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from db import Base
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 
@@ -32,6 +32,8 @@ class BookList(Base):
     name = Column(String, index=True)
 
     user_id = Column(Integer, ForeignKey("users.id"))
+
+    is_protected = Column(Boolean)
 
     user = relationship("User", backref="booklists")
 

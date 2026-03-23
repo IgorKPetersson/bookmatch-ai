@@ -63,6 +63,11 @@ def delete_booklist(
     if not booklist:
         raise HTTPException(status_code=404, detail="BookList not found")
 
+    if booklist.is_protected:
+        raise HTTPException(
+            status_code=403, detail="List is protected, cannot be deleted"
+        )
+
     db.delete(booklist)
     db.commit()
 

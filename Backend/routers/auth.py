@@ -2,6 +2,7 @@ from db import get_db
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from models import (
+    BookList,
     User,
 )
 from schemas import (
@@ -15,6 +16,16 @@ from security import (
 from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Auth"])
+
+DEFAULT_LISTS = [
+    {"name": "Want to Read", "is_protected": True},
+    {"name": "Finished Books", "is_protected": True},
+    {"name": "Thrillers", "is_protected": False},
+    {"name": "Fantasy", "is_protected": False},
+    {"name": "Science Fiction", "is_protected": False},
+    {"name": "Romance", "is_protected": False},
+    {"name": "Mystery", "is_protected": False},
+]
 
 
 @router.post(
@@ -34,6 +45,16 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    for item in DEFAULT_LISTS:
+        new_list = BookList(
+            name=item["name"],
+            user_id=new_user.id,
+            is_protected=item["is_protected"],
+        )
+        db.add(new_list)
+    db.commit()
+
     return new_user
 
 
