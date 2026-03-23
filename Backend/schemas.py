@@ -69,6 +69,7 @@ class BookListWithBooksRead(BaseModel):
     name: str
     user_id: int
     books: List[BookRead]
+    is_protected: bool
 
     class Config:
         from_attributes = True
