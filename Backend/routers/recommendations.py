@@ -256,6 +256,14 @@ def save_booklist(
     books = request.books
 
     for book in books:
+        duplicate_book = (
+            db.query(BookListItem)
+            .join(Book)
+            .filter(BookListItem.booklist_id == book_list.id, Book.title == book.title)
+            .first()
+        )
+        if duplicate_book:
+            raise HTTPException(status_code=409, detail="Book already saved")
         add_book = Book(
             title=book.title,
             authors=book.authors,

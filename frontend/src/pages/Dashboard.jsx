@@ -103,10 +103,7 @@ export default function Dashboard() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Lists data:", data);
-        setLists(data);
-      });
+      .then((data) => setLists(data));
   }, []);
 
   return (
