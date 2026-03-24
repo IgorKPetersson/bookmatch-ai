@@ -153,6 +153,8 @@ export default function Search() {
     });
     if (res.ok) {
       handleDismiss(i);
+    } else if (res.status === 409) {
+      alert("This book is already saved in this list.");
     } else {
       alert("Failed to save book.");
     }
