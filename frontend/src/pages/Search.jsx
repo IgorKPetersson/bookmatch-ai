@@ -31,6 +31,29 @@ export default function Search() {
   const activeBookNumber =
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
+  const GENRES = [
+    "Fiction",
+    "Nonfiction",
+    "Mystery",
+    "Thriller",
+    "Romance",
+    "Science Fiction",
+    "Fantasy",
+    "Historical Fiction",
+    "Horror",
+    "Young Adult",
+    "Children's",
+    "Biography",
+    "Autobiography",
+    "Memoir",
+    "Self-Help",
+    "Poetry",
+    "Graphic Novel",
+    "Adventure",
+    "Dystopian",
+    "Crime",
+  ];
+
   useEffect(() => {
     fetch("http://localhost:8000/booklists", {
       method: "GET",
@@ -337,9 +360,7 @@ export default function Search() {
               }}
             />
           ))}
-          <input
-            type="text"
-            placeholder="Genre (optional)"
+          <select
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
             style={{
@@ -350,7 +371,16 @@ export default function Search() {
               outline: "none",
               color: "#1a1a1a",
             }}
-          />
+          >
+            <option key="None" value={""}>
+              None
+            </option>
+            {GENRES.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
