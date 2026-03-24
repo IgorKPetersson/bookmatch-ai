@@ -1,19 +1,28 @@
-import PageContainer from "../components/PageContainer";
-
 function About() {
   return (
-    <PageContainer>
-
-        <div className="bg-white p-10 rounded shadow-md max-w-3xl w-full mx-auto">
-
+    <div style={{ backgroundColor: "#f7f3ee", minHeight: "100vh" }}>
+      <div className="max-w-7xl mx-auto px-8 py-16">
+        <div
+          className="max-w-3xl w-full mx-auto p-10"
+          style={{
+            background: "white",
+            borderRadius: "16px",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+          }}
+        >
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-semibold">About BookMatch</h2>
-            <p className="text-gray-600 mt-2">
+            <h2
+              className="text-3xl font-semibold"
+              style={{ color: "#1a1a1a" }}
+            >
+              About BookMatch
+            </h2>
+            <p className="mt-2" style={{ color: "#8d7f70" }}>
               AI-powered personalized book discovery
             </p>
           </div>
 
-          <div className="space-y-4 text-gray-700">
+          <div className="space-y-4" style={{ color: "#5f574f" }}>
             <p>
               BookMatch is an AI-powered platform designed to help readers
               discover books that truly match their personal taste.
@@ -31,28 +40,42 @@ function About() {
             </p>
           </div>
 
-          <div className="border-t border-gray-200 my-8"></div>
+          <div
+            className="my-8"
+            style={{ borderTop: "1px solid #f0ece6" }}
+          ></div>
 
           <div className="text-center">
-            <h3 className="text-xl font-semibold mb-4">Project Team</h3>
+            <h3
+              className="text-xl font-semibold mb-4"
+              style={{ color: "#1a1a1a" }}
+            >
+              Project Team
+            </h3>
 
             <div className="flex justify-center gap-10">
               <div>
-                <p className="font-medium text-lg">Igor Petersson</p>
-                <p className="text-sm text-gray-500">Fullstack Developer</p>
+                <p className="font-medium text-lg" style={{ color: "#1a1a1a" }}>
+                  Igor Petersson
+                </p>
+                <p className="text-sm" style={{ color: "#8d7f70" }}>
+                  Fullstack Developer
+                </p>
               </div>
 
               <div>
-                <p className="font-medium text-lg">Oliver Cupan</p>
-                <p className="text-sm text-gray-500">Fullstack Developer</p>
+                <p className="font-medium text-lg" style={{ color: "#1a1a1a" }}>
+                  Oliver Cupan
+                </p>
+                <p className="text-sm" style={{ color: "#8d7f70" }}>
+                  Fullstack Developer
+                </p>
               </div>
             </div>
           </div>
-
         </div>
-
-    </PageContainer>
-
+      </div>
+    </div>
   );
 }
 
