@@ -132,7 +132,6 @@ export default function Search() {
   async function handleAddToList(rec, i) {
     const listId = selectedListPerRec[i] ?? lists[0]?.id;
     const listName = lists.find((l) => l.id === listId)?.name;
-    console.log("Saving:", rec);
     const res = await fetch("http://localhost:8000/recommendations/save", {
       method: "POST",
       credentials: "include",
