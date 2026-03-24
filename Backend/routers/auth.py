@@ -1,5 +1,11 @@
+import os
+import secrets
+from urllib.parse import urlencode
+
+import requests
 from db import get_db
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from models import (
     BookList,
@@ -26,6 +32,22 @@ DEFAULT_LISTS = [
     {"name": "Romance", "is_protected": False},
     {"name": "Mystery", "is_protected": False},
 ]
+GOOGLE_OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_OAUTH_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+GOOGLE_OAUTH_REDIRECT_URI = os.getenv(
+    "GOOGLE_OAUTH_REDIRECT_URI", "http://localhost:8000/auth/google/callback"
+)
+
+
+def _oauth_error_redirect(message: str):
+    return RedirectResponse(
+        url=f"{FRONTEND_URL}/auth?oauth_error={message}",
+        status_code=302,
+    )
 
 
 @router.post(
@@ -90,3 +112,100 @@ def login(
 def logout(request: Request):
     request.session.clear()
     return {"message": "Logged out"}
+
+
+@router.get("/auth/google/start")
+def google_login_start(request: Request):
+    if not GOOGLE_OAUTH_CLIENT_ID or not GOOGLE_OAUTH_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=500,
+            detail="Google OAuth is not configured on the server",
+        )
+
+    state = secrets.token_urlsafe(32)
+    request.session["google_oauth_state"] = state
+
+    params = {
+        "client_id": GOOGLE_OAUTH_CLIENT_ID,
+        "redirect_uri": GOOGLE_OAUTH_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "state": state,
+        "access_type": "online",
+        "prompt": "select_account",
+    }
+
+    return RedirectResponse(
+        url=f"{GOOGLE_OAUTH_AUTHORIZE_URL}?{urlencode(params)}",
+        status_code=302,
+    )
+
+
+@router.get("/auth/google/callback")
+def google_login_callback(
+    request: Request,
+    state: str | None = None,
+    code: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+):
+    if error:
+        return _oauth_error_redirect("Google sign-in was cancelled")
+
+    saved_state = request.session.pop("google_oauth_state", None)
+    if not state or not saved_state or state != saved_state:
+        return _oauth_error_redirect("Google sign-in could not be verified")
+
+    if not code:
+        return _oauth_error_redirect("Google did not return a login code")
+
+    token_response = requests.post(
+        GOOGLE_OAUTH_TOKEN_URL,
+        data={
+            "code": code,
+            "client_id": GOOGLE_OAUTH_CLIENT_ID,
+            "client_secret": GOOGLE_OAUTH_CLIENT_SECRET,
+            "redirect_uri": GOOGLE_OAUTH_REDIRECT_URI,
+            "grant_type": "authorization_code",
+        },
+        timeout=15,
+    )
+
+    if not token_response.ok:
+        return _oauth_error_redirect("Google token exchange failed")
+
+    token_payload = token_response.json()
+    access_token = token_payload.get("access_token")
+
+    if not access_token:
+        return _oauth_error_redirect("Google did not return an access token")
+
+    userinfo_response = requests.get(
+        GOOGLE_OAUTH_USERINFO_URL,
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=15,
+    )
+
+    if not userinfo_response.ok:
+        return _oauth_error_redirect("Could not read your Google profile")
+
+    userinfo = userinfo_response.json()
+    email = userinfo.get("email")
+    email_verified = userinfo.get("email_verified")
+
+    if not email or not email_verified:
+        return _oauth_error_redirect("Your Google account must have a verified email")
+
+    db_user = db.query(User).filter(User.email == email).first()
+    if db_user is None:
+        db_user = User(
+            email=email,
+            # Random local password keeps the current schema intact for OAuth users.
+            hashed_password=hash_password(secrets.token_urlsafe(32)),
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+
+    request.session["user_email"] = db_user.email
+    return RedirectResponse(url=f"{FRONTEND_URL}/dashboard", status_code=302)
