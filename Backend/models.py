@@ -23,6 +23,7 @@ class Book(Base):
     isbn = Column(String, index=True)
     release_year = Column(Integer, index=True)
     genre = Column(String, index=True)
+    image = Column(String)
 
 
 class BookList(Base):

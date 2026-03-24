@@ -24,7 +24,6 @@ from schemas import (
     SaveBook,
     SaveBookList,
 )
-
 from security import get_current_user
 from sqlalchemy.orm import Session
 
@@ -266,6 +265,7 @@ def save_booklist(
             if book.release_date
             else 0,
             genre=book.genre,
+            image=book.image,
         )
 
         db.add(add_book)
@@ -284,11 +284,7 @@ def get_user_lists(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return (
-        db.query(BookList)
-        .filter(BookList.user_id == current_user.id)
-        .all()
-    )
+    return db.query(BookList).filter(BookList.user_id == current_user.id).all()
 
 
 @router.get("/history", response_model=List[RecommendedListRead])

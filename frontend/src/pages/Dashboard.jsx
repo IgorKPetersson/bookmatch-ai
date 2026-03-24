@@ -103,7 +103,10 @@ export default function Dashboard() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((data) => setLists(data));
+      .then((data) => {
+        console.log("Lists data:", data);
+        setLists(data);
+      });
   }, []);
 
   return (
@@ -297,7 +300,7 @@ export default function Dashboard() {
                                 }}
                               >
                                 <img
-                                  src={book.cover}
+                                  src={book.image}
                                   alt={book.title}
                                   style={{
                                     width: "36px",
@@ -622,7 +625,7 @@ export default function Dashboard() {
                     }}
                   >
                     <img
-                      src={book.cover}
+                      src={book.image}
                       alt={book.title}
                       style={{
                         width: "100%",

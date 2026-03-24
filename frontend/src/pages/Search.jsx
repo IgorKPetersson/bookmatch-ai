@@ -147,6 +147,7 @@ export default function Search() {
             isbn: rec.isbn,
             release_date: rec.release_date,
             genre: rec.genre,
+            image: rec.image,
           },
         ],
       }),

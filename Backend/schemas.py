@@ -33,6 +33,7 @@ class BookRead(BaseModel):
     isbn: str
     release_year: int
     genre: str
+    image: str
 
     class Config:  # ← must be indented
         from_attributes = True
@@ -142,6 +143,7 @@ class SaveBook(BaseModel):
     isbn: str
     release_date: str
     genre: str
+    image: str
 
 
 class SaveBookList(BaseModel):
