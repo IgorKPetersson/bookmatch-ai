@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 function Register() {
   const [firstName, setFirstName] = useState("");
@@ -164,6 +165,10 @@ function Register() {
             >
               Register
             </button>
+
+            <div className="my-4" style={{ borderTop: "1px solid #f0ece6" }}></div>
+
+            <GoogleAuthButton label="Continue with Google" />
 
             {message && <p className="mt-4" style={{ color: "#5f574f" }}>{message}</p>}
           </form>
