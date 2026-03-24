@@ -176,218 +176,251 @@ export default function Dashboard() {
                 gap: "10px",
               }}
             >
-              {lists.map((list) => (
-                <div
-                  key={list.id}
-                  style={{
-                    background: "white",
-                    borderRadius: "14px",
-                    boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* List header row */}
-                  <button
-                    onClick={() => toggleList(list.id)}
+              {[...lists]
+                .sort((a, b) => {
+                  if (a.name === "Want to Read") return -1;
+                  if (b.name === "Want to Read") return 1;
+                  if (a.name === "Finished Books") return 1;
+                  if (b.name === "Finished Books") return -1;
+
+                  return b.name.localeCompare(a.name);
+                })
+                .map((list) => (
+                  <div
+                    key={list.id}
                     style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "16px 20px",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
+                      background: "white",
+                      borderRadius: "14px",
+                      boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                      overflow: "hidden",
                     }}
                   >
-                    <span
+                    {/* List header row */}
+                    <button
+                      onClick={() => toggleList(list.id)}
                       style={{
-                        fontSize: "15px",
-                        fontWeight: 600,
-                        color: "#1a1a1a",
-                      }}
-                    >
-                      {list.name} ({list.books.length})
-                    </span>
-                    <div
-                      style={{
+                        width: "100%",
                         display: "flex",
                         alignItems: "center",
-                        gap: "16px",
+                        justifyContent: "space-between",
+                        padding: "16px 20px",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
                       }}
                     >
                       <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteList(list.id);
-                        }}
                         style={{
-                          fontSize: "12px",
-                          color: "#bbb",
-                          cursor: "pointer",
-                        }}
-                        onMouseEnter={(e) => (e.target.style.color = "#e57373")}
-                        onMouseLeave={(e) => (e.target.style.color = "#bbb")}
-                      >
-                        Delete
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#aaa",
-                          transform: list.open
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                          transition: "transform 0.2s",
-                          display: "inline-block",
+                          fontSize: "15px",
+                          fontWeight: 600,
+                          color: "#1a1a1a",
                         }}
                       >
-                        ▼
+                        {list.name} ({list.books.length})
                       </span>
-                    </div>
-                  </button>
-
-                  {/* Books */}
-                  {list.open && (
-                    <div style={{ borderTop: "1px solid #f0ece6" }}>
-                      {list.books.length === 0 ? (
-                        <p
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "16px",
+                        }}
+                      >
+                        {!list.is_protected && (
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteList(list.id);
+                            }}
+                            style={{
+                              fontSize: "12px",
+                              color: "#bbb",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.target.style.color = "#e57373")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.target.style.color = "#bbb")
+                            }
+                          >
+                            Delete
+                          </span>
+                        )}
+                        <span
                           style={{
-                            padding: "14px 20px",
-                            fontSize: "13px",
-                            color: "#bbb",
+                            fontSize: "11px",
+                            color: "#aaa",
+                            transform: list.open
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                            transition: "transform 0.2s",
+                            display: "inline-block",
                           }}
                         >
-                          No books yet.
-                        </p>
-                      ) : (
-                        list.books.map((book) => (
-                          <div
-                            key={book.id}
+                          ▼
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Books */}
+                    {list.open && (
+                      <div style={{ borderTop: "1px solid #f0ece6" }}>
+                        {list.books.length === 0 ? (
+                          <p
                             style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              padding: "10px 20px",
-                              borderBottom: "1px solid #f7f3ee",
+                              padding: "14px 20px",
+                              fontSize: "13px",
+                              color: "#bbb",
                             }}
                           >
+                            No books yet.
+                          </p>
+                        ) : (
+                          list.books.map((book) => (
                             <div
+                              key={book.id}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "12px",
-                                minWidth: 0,
+                                justifyContent: "space-between",
+                                padding: "10px 20px",
+                                borderBottom: "1px solid #f7f3ee",
                               }}
                             >
-                              <img
-                                src={book.cover}
-                                alt={book.title}
+                              <div
                                 style={{
-                                  width: "36px",
-                                  height: "52px",
-                                  objectFit: "cover",
-                                  borderRadius: "5px",
-                                  flexShrink: 0,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "12px",
+                                  minWidth: 0,
                                 }}
-                              />
-                              <div style={{ minWidth: 0 }}>
-                                <p
+                              >
+                                <img
+                                  src={book.cover}
+                                  alt={book.title}
                                   style={{
-                                    fontSize: "14px",
-                                    fontWeight: 600,
-                                    color: "#1a1a1a",
-                                    margin: 0,
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
+                                    width: "36px",
+                                    height: "52px",
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    flexShrink: 0,
                                   }}
-                                >
-                                  {book.title}
-                                </p>
-                                <p
-                                  style={{
-                                    fontSize: "12px",
-                                    color: "#999",
-                                    margin: "2px 0 0",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {book.authors}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                flexShrink: 0,
-                                marginLeft: "16px",
-                              }}
-                            >
-                              {movingBook?.book.id === book.id ? (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                    flexWrap: "wrap",
-                                  }}
-                                >
-                                  <span
+                                />
+                                <div style={{ minWidth: 0 }}>
+                                  <p
+                                    style={{
+                                      fontSize: "14px",
+                                      fontWeight: 600,
+                                      color: "#1a1a1a",
+                                      margin: 0,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {book.title}
+                                  </p>
+                                  <p
                                     style={{
                                       fontSize: "12px",
                                       color: "#999",
+                                      margin: "2px 0 0",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
                                     }}
                                   >
-                                    Move to:
-                                  </span>
-                                  {lists
-                                    .filter((l) => l.id !== list.id)
-                                    .map((target) => (
-                                      <button
-                                        key={target.id}
-                                        onClick={() =>
-                                          handleMoveBook(target.id)
-                                        }
-                                        style={{
-                                          fontSize: "11px",
-                                          padding: "3px 8px",
-                                          background: "#eef2ff",
-                                          color: "#4f6ef7",
-                                          border: "1px solid #c7d2fe",
-                                          borderRadius: "6px",
-                                          cursor: "pointer",
-                                        }}
-                                      >
-                                        {target.name}
-                                      </button>
-                                    ))}
+                                    {book.authors}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  flexShrink: 0,
+                                  marginLeft: "16px",
+                                }}
+                              >
+                                {movingBook?.book.id === book.id ? (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "6px",
+                                      flexWrap: "wrap",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: "12px",
+                                        color: "#999",
+                                      }}
+                                    >
+                                      Move to:
+                                    </span>
+                                    {lists
+                                      .filter((l) => l.id !== list.id)
+                                      .map((target) => (
+                                        <button
+                                          key={target.id}
+                                          onClick={() =>
+                                            handleMoveBook(target.id)
+                                          }
+                                          style={{
+                                            fontSize: "11px",
+                                            padding: "3px 8px",
+                                            background: "#eef2ff",
+                                            color: "#4f6ef7",
+                                            border: "1px solid #c7d2fe",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                          }}
+                                        >
+                                          {target.name}
+                                        </button>
+                                      ))}
+                                    <button
+                                      onClick={() => setMovingBook(null)}
+                                      style={{
+                                        fontSize: "12px",
+                                        color: "#bbb",
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ) : (
                                   <button
-                                    onClick={() => setMovingBook(null)}
+                                    onClick={() =>
+                                      setMovingBook({
+                                        book,
+                                        fromListId: list.id,
+                                      })
+                                    }
                                     style={{
                                       fontSize: "12px",
-                                      color: "#bbb",
-                                      background: "none",
-                                      border: "none",
+                                      padding: "5px 14px",
+                                      background: "white",
+                                      border: "1px solid #e0dbd3",
+                                      borderRadius: "7px",
                                       cursor: "pointer",
+                                      color: "#555",
+                                      fontWeight: 500,
                                     }}
                                   >
-                                    ✕
+                                    Move
                                   </button>
-                                </div>
-                              ) : (
+                                )}
                                 <button
                                   onClick={() =>
-                                    setMovingBook({
-                                      book,
-                                      fromListId: list.id,
-                                    })
+                                    handleRemoveBook(list.id, book.id)
                                   }
                                   style={{
                                     fontSize: "12px",
@@ -400,34 +433,16 @@ export default function Dashboard() {
                                     fontWeight: 500,
                                   }}
                                 >
-                                  Move
+                                  Remove
                                 </button>
-                              )}
-                              <button
-                                onClick={() =>
-                                  handleRemoveBook(list.id, book.id)
-                                }
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "5px 14px",
-                                  background: "white",
-                                  border: "1px solid #e0dbd3",
-                                  borderRadius: "7px",
-                                  cursor: "pointer",
-                                  color: "#555",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                Remove
-                              </button>
+                              </div>
                             </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
 
               {/* New list input */}
               {showNewListInput ? (
