@@ -1,12 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import GoogleAuthButton from "../components/GoogleAuthButton";
 
 export default function Auth() {
+  const apiBaseUrl = "http://localhost:8000";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("oauth_error");
+
+    if (!oauthError) {
+      return;
+    }
+
+    setError(oauthError);
+    params.delete("oauth_error");
+    const nextQuery = params.toString();
+    const nextUrl = nextQuery ? `/auth?${nextQuery}` : "/auth";
+    window.history.replaceState({}, "", nextUrl);
+  }, []);
 
   function validate() {
     if (!email) return "Email is required";
@@ -29,7 +46,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/login", {
+      const res = await fetch(`${apiBaseUrl}/login`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -144,6 +161,10 @@ export default function Auth() {
             >
               {loading ? "Logging in..." : "Log in"}
             </button>
+
+            <div className="my-4" style={{ borderTop: "1px solid #f0ece6" }}></div>
+
+            <GoogleAuthButton label="Continue with Google" />
 
             <p
               className="text-sm text-center mt-6"
