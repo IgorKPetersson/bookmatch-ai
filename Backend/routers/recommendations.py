@@ -235,6 +235,7 @@ def save_booklist(
         book_list = BookList(
             name=request.name,
             user_id=current_user.id,
+            is_protected=False,
         )
         db.add(book_list)
         db.commit()

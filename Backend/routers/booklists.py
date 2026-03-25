@@ -31,6 +31,7 @@ def create_booklist(
     new_list = BookList(
         name=booklist.name,
         user_id=current_user.id,
+        is_protected=False,
     )
 
     db.add(new_list)

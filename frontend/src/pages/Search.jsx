@@ -59,27 +59,54 @@ export default function Search() {
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
   const GENRES = [
-    "Fiction",
-    "Nonfiction",
-    "Mystery",
-    "Thriller",
-    "Romance",
-    "Science Fiction",
+    "Adventure",
+    "Autobiography",
+    "Biography",
+    "Children's",
+    "Crime",
+    "Dystopian",
     "Fantasy",
+    "Fiction",
+    "Graphic Novel",
     "Historical Fiction",
     "Horror",
-    "Young Adult",
-    "Children's",
-    "Biography",
-    "Autobiography",
     "Memoir",
-    "Self-Help",
+    "Mystery",
+    "Nonfiction",
     "Poetry",
-    "Graphic Novel",
-    "Adventure",
-    "Dystopian",
-    "Crime",
+    "Romance",
+    "Science Fiction",
+    "Self-Help",
+    "Thriller",
+    "Young Adult",
   ];
+
+  async function loadLists() {
+    try {
+      const res = await fetch("http://localhost:8000/booklists", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        setLists([]);
+        return [];
+      }
+
+      const data = await res.json();
+      const nextLists = Array.isArray(data)
+        ? data.map((list) => ({
+            id: list.id,
+            name: list.name,
+          }))
+        : [];
+      setLists(nextLists);
+      return nextLists;
+    } catch {
+      setLists([]);
+      return [];
+    }
+  }
 
   useEffect(() => {
     fetch("http://localhost:8000/books", {
@@ -97,12 +124,7 @@ export default function Search() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/booklists", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setLists(data));
+    loadLists();
   }, []);
 
   useEffect(() => {
@@ -163,6 +185,7 @@ export default function Search() {
       const data = await res.json();
 
       if (res.ok) {
+        await loadLists();
         setRecommendations(data.recommendations.slice(0, 2));
         setSelectedListPerRec({});
       } else if (res.status === 401) {
@@ -429,7 +452,7 @@ export default function Search() {
                 background: cardBackground,
               }}
             >
-              <option key="None" value="">
+              <option key="Genre" value="">
                 None
               </option>
               {GENRES.map((o) => (
@@ -623,7 +646,7 @@ export default function Search() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {recommendations.map((rec, i) => (
                   <div
                     key={i}
@@ -704,11 +727,15 @@ export default function Search() {
                           outline: "none",
                         }}
                       >
-                        {lists.map((l) => (
-                          <option key={l.id} value={l.id}>
-                            {l.name}
-                          </option>
-                        ))}
+                        {lists.length > 0 ? (
+                          lists.map((l) => (
+                            <option key={l.id} value={l.id}>
+                              {l.name}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="">No lists available</option>
+                        )}
                       </select>
 
                       <div className="flex gap-2">

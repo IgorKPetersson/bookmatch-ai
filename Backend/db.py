@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -16,6 +16,21 @@ Base = declarative_base()
 from models import Book, RecommendationList, RecommendedBook
 
 Base.metadata.create_all(bind=engine)
+
+inspector = inspect(engine)
+user_columns = {column["name"] for column in inspector.get_columns("users")}
+if "avatar_seed" not in user_columns:
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE users ADD COLUMN avatar_seed VARCHAR"))
+
+booklist_columns = {column["name"] for column in inspector.get_columns("booklists")}
+if "is_protected" in booklist_columns:
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "UPDATE booklists SET is_protected = FALSE WHERE is_protected IS NULL"
+            )
+        )
 
 
 def get_db():

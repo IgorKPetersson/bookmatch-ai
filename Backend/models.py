@@ -11,6 +11,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    avatar_seed = Column(String, nullable=True)
 
 
 class Book(Base):
@@ -34,7 +35,7 @@ class BookList(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"))
 
-    is_protected = Column(Boolean)
+    is_protected = Column(Boolean, default=False, nullable=False)
 
     user = relationship("User", backref="booklists")
 
