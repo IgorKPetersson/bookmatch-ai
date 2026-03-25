@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
+  const sectionLabelStyle = {
+    fontSize: "12px",
+    fontWeight: 700,
+    color: "#3f3a34",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    margin: "0 0 14px",
+  };
+
   const [lists, setLists] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -350,17 +359,6 @@ export default function Dashboard() {
         >
           {/* LEFT — Reading Lists */}
           <div>
-            <h2
-              style={{
-                fontSize: "22px",
-                fontWeight: 700,
-                color: "#1a1a1a",
-                marginBottom: "20px",
-              }}
-            >
-              Your Account
-            </h2>
-
             <div
               style={{
                 background: "white",
@@ -370,6 +368,7 @@ export default function Dashboard() {
                 marginBottom: "28px",
               }}
             >
+              <p style={sectionLabelStyle}>Account Overview</p>
               <div
                 style={{
                   display: "flex",
@@ -533,24 +532,22 @@ export default function Dashboard() {
               )}
             </div>
 
-            <h2
-              style={{
-                fontSize: "22px",
-                fontWeight: 700,
-                color: "#1a1a1a",
-                marginBottom: "20px",
-              }}
-            >
-              Your Reading Lists
-            </h2>
-
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
+                background: "white",
+                borderRadius: "14px",
+                boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                padding: "18px",
               }}
             >
+              <p style={sectionLabelStyle}>Reading Lists</p>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
               {[...lists]
                 .sort((a, b) => {
                   if (a.name === "Want to Read") return -1;
@@ -917,6 +914,7 @@ export default function Dashboard() {
                   + Create New List
                 </button>
               )}
+              </div>
             </div>
 
             {/* Empty state */}
@@ -954,17 +952,6 @@ export default function Dashboard() {
 
           {/* RIGHT — Recently Saved */}
           <div>
-            <h2
-              style={{
-                fontSize: "22px",
-                fontWeight: 700,
-                color: "#1a1a1a",
-                marginBottom: "20px",
-              }}
-            >
-              Recently Saved
-            </h2>
-
             {recentlyAdded.length === 0 ? (
               <div
                 style={{
@@ -975,6 +962,7 @@ export default function Dashboard() {
                   boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                 }}
               >
+                <p style={sectionLabelStyle}>Recently Added</p>
                 <p
                   style={{
                     fontSize: "14px",
@@ -1004,86 +992,85 @@ export default function Dashboard() {
                   boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                   padding: "16px",
                   display: "flex",
+                  flexDirection: "column",
                   gap: "14px",
+                  marginBottom: "28px",
                 }}
               >
-                {recentlyAdded.map((book) => (
-                  <div
-                    key={book.id}
-                    style={{
-                      flex: 1,
-                      background: "white",
-                      borderRadius: "16px",
-                      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                      overflow: "hidden",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <img
-                      src={book.image}
-                      alt={book.title}
-                      style={{
-                        width: "100%",
-                        height: "200px",
-                        objectFit: "cover",
-                      }}
-                    />
+                <p style={sectionLabelStyle}>Recently Added</p>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "14px",
+                  }}
+                >
+                  {recentlyAdded.map((book) => (
                     <div
+                      key={book.id}
                       style={{
-                        padding: "14px 14px 16px",
+                        flex: 1,
+                        background: "white",
+                        borderRadius: "16px",
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                        overflow: "hidden",
                         display: "flex",
                         flexDirection: "column",
-                        flex: 1,
                       }}
                     >
-                      <p
+                      <img
+                        src={book.image}
+                        alt={book.title}
                         style={{
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          color: "#1a1a1a",
-                          margin: "0 0 4px",
-                          lineHeight: 1.3,
+                          width: "100%",
+                          height: "200px",
+                          objectFit: "cover",
                         }}
-                      >
-                        {book.title}
-                      </p>
-                      <p
+                      />
+                      <div
                         style={{
-                          fontSize: "12px",
-                          color: "#999",
-                          margin: "0 0 8px",
-                        }}
-                      >
-                        {book.authors}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "12px",
-                          color: "#b5a99a",
-                          lineHeight: 1.5,
-                          margin: "0 0 14px",
+                          padding: "14px 14px 16px",
+                          display: "flex",
+                          flexDirection: "column",
                           flex: 1,
                         }}
                       >
-                        {book.listName}
-                      </p>
+                        <p
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "#1a1a1a",
+                            margin: "0 0 4px",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {book.title}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            margin: "0 0 8px",
+                          }}
+                        >
+                          {book.authors}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "#b5a99a",
+                            lineHeight: 1.5,
+                            margin: "0 0 14px",
+                            flex: 1,
+                          }}
+                        >
+                          {book.listName}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
-
-            <h2
-              style={{
-                fontSize: "22px",
-                fontWeight: 700,
-                color: "#1a1a1a",
-                margin: "28px 0 20px",
-              }}
-            >
-              Book Details
-            </h2>
 
             {recentlyAdded.length === 0 ? (
               <div
@@ -1093,8 +1080,10 @@ export default function Dashboard() {
                   padding: "40px 20px",
                   textAlign: "center",
                   boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                  marginBottom: "28px",
                 }}
               >
+                <p style={sectionLabelStyle}>Selected Book</p>
                 <p
                   style={{
                     fontSize: "14px",
@@ -1126,6 +1115,7 @@ export default function Dashboard() {
                   boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                 }}
               >
+                <p style={sectionLabelStyle}>Selected Book</p>
                 <p
                   style={{
                     fontSize: "14px",
@@ -1145,6 +1135,9 @@ export default function Dashboard() {
                   overflow: "hidden",
                 }}
               >
+                <div style={{ padding: "18px 18px 0" }}>
+                  <p style={sectionLabelStyle}>Selected Book</p>
+                </div>
                 <div
                   style={{
                     display: "grid",
