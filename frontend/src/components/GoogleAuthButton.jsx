@@ -1,9 +1,18 @@
+import { useState } from "react";
+
 const apiBaseUrl = "http://localhost:8000";
 
 export default function GoogleAuthButton({
   label = "Continue with Google",
 }) {
+  const [redirecting, setRedirecting] = useState(false);
+
   function handleClick() {
+    if (redirecting) {
+      return;
+    }
+
+    setRedirecting(true);
     window.location.href = `${apiBaseUrl}/auth/google/start`;
   }
 
@@ -11,20 +20,23 @@ export default function GoogleAuthButton({
     <button
       type="button"
       onClick={handleClick}
+      disabled={redirecting}
       className="w-full rounded-md font-semibold"
       style={{
         alignItems: "center",
         backgroundColor: "white",
         border: "1px solid #e0dbd3",
         color: "#1a1a1a",
-        cursor: "pointer",
+        cursor: redirecting ? "not-allowed" : "pointer",
         display: "flex",
         gap: "12px",
         justifyContent: "center",
+        opacity: redirecting ? 0.75 : 1,
         padding: "12px 16px",
         transition: "box-shadow 0.2s ease, transform 0.2s ease",
       }}
       onMouseEnter={(e) => {
+        if (redirecting) return;
         e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
         e.currentTarget.style.transform = "translateY(-1px)";
       }}
@@ -65,7 +77,7 @@ export default function GoogleAuthButton({
           />
         </svg>
       </span>
-      {label}
+      {redirecting ? "Redirecting to Google..." : label}
     </button>
   );
 }
