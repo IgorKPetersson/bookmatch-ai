@@ -5,6 +5,8 @@ export default function Dashboard() {
   const [lists, setLists] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accountEmail, setAccountEmail] = useState("");
   const [avatarSeed, setAvatarSeed] = useState("");
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
@@ -158,8 +160,19 @@ export default function Dashboard() {
       method: "GET",
       credentials: "include",
     })
-      .then((res) => res.json())
-      .then((data) => setLists(data));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Could not load booklists");
+        }
+
+        return res.json();
+      })
+      .then((data) => {
+        setLists(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setLists([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -174,14 +187,116 @@ export default function Dashboard() {
         return res.json();
       })
       .then((data) => {
+        setIsAuthenticated(true);
         setAccountEmail(data?.email || "");
         setAvatarSeed(data?.avatar_seed || "");
       })
       .catch(() => {
+        setIsAuthenticated(false);
         setAccountEmail("");
         setAvatarSeed("");
+      })
+      .finally(() => {
+        setAuthChecked(true);
       });
   }, []);
+
+  if (authChecked && !isAuthenticated) {
+    return (
+      <div style={{ backgroundColor: "#f7f3ee", minHeight: "100vh" }}>
+        <div
+          style={{
+            maxWidth: "820px",
+            margin: "0 auto",
+            padding: "80px 32px",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: "18px",
+              boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+              padding: "42px 36px",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#8d7f70",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                margin: "0 0 10px",
+              }}
+            >
+              Dashboard Access
+            </p>
+            <h1
+              style={{
+                fontSize: "32px",
+                fontWeight: 700,
+                color: "#1a1a1a",
+                margin: "0 0 12px",
+              }}
+            >
+              Log in to access your dashboard
+            </h1>
+            <p
+              style={{
+                maxWidth: "560px",
+                margin: "0 auto 24px",
+                fontSize: "15px",
+                lineHeight: 1.7,
+                color: "#5f574f",
+              }}
+            >
+              Save books, organize your reading lists, choose your profile
+              avatar, and keep your personal BookMatch space in one place.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "12px",
+                flexWrap: "wrap",
+              }}
+            >
+              <Link
+                to="/auth"
+                style={{
+                  background: "#4f6ef7",
+                  color: "white",
+                  padding: "12px 24px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                Log in
+              </Link>
+              <Link
+                to="/search"
+                style={{
+                  background: "white",
+                  color: "#5f574f",
+                  padding: "12px 24px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  border: "1px solid #e0dbd3",
+                }}
+              >
+                Search Books
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: "#f7f3ee", minHeight: "100vh" }}>
@@ -443,7 +558,7 @@ export default function Dashboard() {
                   if (a.name === "Finished Books") return 1;
                   if (b.name === "Finished Books") return -1;
 
-                  return b.name.localeCompare(a.name);
+                  return a.name.localeCompare(b.name);
                 })
                 .map((list) => (
                   <div
