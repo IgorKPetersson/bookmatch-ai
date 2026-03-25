@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [lists, setLists] = useState([]);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [accountEmail, setAccountEmail] = useState("");
+  const [avatarSeed, setAvatarSeed] = useState("");
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [savingAvatar, setSavingAvatar] = useState(false);
 
   const recentlyAdded = lists
     .flatMap((l) => l.books.map((b) => ({ ...b, listName: l.name })))
@@ -15,6 +21,14 @@ export default function Dashboard() {
   const totalBooks = lists.reduce((sum, l) => sum + l.books.length, 0);
   const currentlyReading =
     lists.find((l) => l.name === "Finished Books")?.books.at(-1)?.title ?? "—";
+  const accountInitial = accountEmail ? accountEmail[0].toUpperCase() : "?";
+  const avatarSeeds = Array.from({ length: 36 }, (_, index) =>
+    `${accountEmail || "bookmatch-user"}-${index + 1}`,
+  );
+
+  function getAvatarUrl(seed) {
+    return `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${encodeURIComponent(seed)}`;
+  }
 
   function toggleList(id) {
     setLists(lists.map((l) => (l.id === id ? { ...l, open: !l.open } : l)));
@@ -57,15 +71,20 @@ export default function Dashboard() {
     fetch(`http://localhost:8000/booklists/${listId}/books/${bookId}`, {
       method: "DELETE",
       credentials: "include",
-    }).then(() =>
+    }).then(() => {
       setLists(
         lists.map((l) =>
           l.id === listId
             ? { ...l, books: l.books.filter((b) => b.id !== bookId) }
             : l,
         ),
-      ),
-    );
+      );
+
+      if (selectedBook?.id === bookId) {
+        setSelectedBook(null);
+        setShowFullDescription(false);
+      }
+    });
   }
 
   function handleMoveBook(targetListId) {
@@ -97,6 +116,43 @@ export default function Dashboard() {
       });
   }
 
+  async function handleLogout() {
+    await fetch("http://localhost:8000/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    window.location.href = "/";
+  }
+
+  async function handleSaveAvatar(seed) {
+    if (!seed) {
+      return;
+    }
+
+    try {
+      setSavingAvatar(true);
+      const res = await fetch("http://localhost:8000/me/avatar", {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatar_seed: seed }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Could not save avatar");
+      }
+
+      const data = await res.json();
+      setAvatarSeed(data.avatar_seed || seed);
+      setShowAvatarPicker(false);
+    } catch {
+      alert("Could not save avatar right now.");
+    } finally {
+      setSavingAvatar(false);
+    }
+  }
+
   useEffect(() => {
     fetch("http://localhost:8000/booklists", {
       method: "GET",
@@ -104,6 +160,27 @@ export default function Dashboard() {
     })
       .then((res) => res.json())
       .then((data) => setLists(data));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/me", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Not authenticated");
+        }
+
+        return res.json();
+      })
+      .then((data) => {
+        setAccountEmail(data?.email || "");
+        setAvatarSeed(data?.avatar_seed || "");
+      })
+      .catch(() => {
+        setAccountEmail("");
+        setAvatarSeed("");
+      });
   }, []);
 
   return (
@@ -141,7 +218,7 @@ export default function Dashboard() {
           </span>
           <span style={{ color: "#ddd" }}>|</span>
           <span>
-            Currently Reading:{" "}
+            Latest Book Read:{" "}
             <strong style={{ color: "#1a1a1a" }}>{currentlyReading}</strong>
           </span>
           <span style={{ marginLeft: "auto", fontSize: "20px" }}>📖</span>
@@ -158,6 +235,189 @@ export default function Dashboard() {
         >
           {/* LEFT — Reading Lists */}
           <div>
+            <h2
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#1a1a1a",
+                marginBottom: "20px",
+              }}
+            >
+              Your Account
+            </h2>
+
+            <div
+              style={{
+                background: "white",
+                borderRadius: "14px",
+                boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                padding: "18px",
+                marginBottom: "28px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div
+                  onClick={() => {
+                    setShowAvatarPicker(true);
+                  }}
+                  style={{
+                    width: "52px",
+                    height: "52px",
+                    borderRadius: "999px",
+                    background: "#eef2ff",
+                    color: "#4f6ef7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "20px",
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                  }}
+                >
+                  {avatarSeed ? (
+                    <img
+                      src={getAvatarUrl(avatarSeed)}
+                      alt="Selected avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    accountInitial
+                  )}
+                </div>
+
+                <div style={{ minWidth: 0 }}>
+                  <p
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "#1a1a1a",
+                      margin: "0 0 4px",
+                    }}
+                  >
+                    {accountEmail || "Logged-in user"}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      color: "#8d7f70",
+                      margin: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    Personal BookMatch account
+                  </p>
+                </div>
+              </div>
+
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "#5f574f",
+                  lineHeight: 1.6,
+                  margin: "0 0 14px",
+                }}
+              >
+                Manage your reading space, explore saved books, and keep your
+                personal lists organized in one place.
+              </p>
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: "100%",
+                  background: "white",
+                  border: "1px solid #e0dbd3",
+                  borderRadius: "10px",
+                  padding: "10px 14px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "#5f574f",
+                  cursor: "pointer",
+                }}
+              >
+                Log out
+              </button>
+
+              {showAvatarPicker && (
+                <div
+                  style={{
+                    marginTop: "16px",
+                    paddingTop: "16px",
+                    borderTop: "1px solid #f0ece6",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: "#8d7f70",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      margin: "0 0 12px",
+                    }}
+                  >
+                    Choose Your Avatar
+                  </p>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(12, 1fr)",
+                      gap: "10px",
+                      marginBottom: "14px",
+                    }}
+                  >
+                    {avatarSeeds.map((seed) => (
+                      <button
+                        key={seed}
+                        onClick={() => handleSaveAvatar(seed)}
+                        disabled={savingAvatar}
+                        style={{
+                          width: "100%",
+                          height: "36px",
+                          borderRadius: "10px",
+                          border:
+                            avatarSeed === seed
+                              ? "2px solid #4f6ef7"
+                              : "1px solid #e0dbd3",
+                          background: "#f8f4ee",
+                          padding: "3px",
+                          cursor: savingAvatar ? "not-allowed" : "pointer",
+                          opacity: savingAvatar ? 0.7 : 1,
+                          overflow: "hidden",
+                        }}
+                      >
+                        <img
+                          src={getAvatarUrl(seed)}
+                          alt="Avatar option"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "7px",
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <h2
               style={{
                 fontSize: "22px",
@@ -296,44 +556,68 @@ export default function Dashboard() {
                                   minWidth: 0,
                                 }}
                               >
-                                <img
-                                  src={book.image}
-                                  alt={book.title}
+                                <button
+                                  onClick={() =>
+                                    {
+                                      setSelectedBook({
+                                        ...book,
+                                        listName: list.name,
+                                      });
+                                      setShowFullDescription(false);
+                                    }
+                                  }
                                   style={{
-                                    width: "36px",
-                                    height: "52px",
-                                    objectFit: "cover",
-                                    borderRadius: "5px",
-                                    flexShrink: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
+                                    minWidth: 0,
+                                    flex: 1,
+                                    background: "none",
+                                    border: "none",
+                                    padding: 0,
+                                    textAlign: "left",
+                                    cursor: "pointer",
                                   }}
-                                />
-                                <div style={{ minWidth: 0 }}>
-                                  <p
+                                >
+                                  <img
+                                    src={book.image}
+                                    alt={book.title}
                                     style={{
-                                      fontSize: "14px",
-                                      fontWeight: 600,
-                                      color: "#1a1a1a",
-                                      margin: 0,
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
+                                      width: "36px",
+                                      height: "52px",
+                                      objectFit: "cover",
+                                      borderRadius: "5px",
+                                      flexShrink: 0,
                                     }}
-                                  >
-                                    {book.title}
-                                  </p>
-                                  <p
-                                    style={{
-                                      fontSize: "12px",
-                                      color: "#999",
-                                      margin: "2px 0 0",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    {book.authors}
-                                  </p>
-                                </div>
+                                  />
+                                  <div style={{ minWidth: 0 }}>
+                                    <p
+                                      style={{
+                                        fontSize: "14px",
+                                        fontWeight: 600,
+                                        color: "#1a1a1a",
+                                        margin: 0,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {book.title}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: "12px",
+                                        color: "#999",
+                                        margin: "2px 0 0",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {book.authors}
+                                    </p>
+                                  </div>
+                                </button>
                               </div>
 
                               <div
@@ -672,6 +956,200 @@ export default function Dashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            <h2
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#1a1a1a",
+                margin: "28px 0 20px",
+              }}
+            >
+              Book Details
+            </h2>
+
+            {recentlyAdded.length === 0 ? (
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "14px",
+                  padding: "40px 20px",
+                  textAlign: "center",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "#aaa",
+                    marginBottom: "12px",
+                  }}
+                >
+                  No books saved yet.
+                </p>
+                <Link
+                  to="/search"
+                  style={{
+                    fontSize: "13px",
+                    color: "#4f6ef7",
+                    textDecoration: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  Search for books
+                </Link>
+              </div>
+            ) : !selectedBook ? (
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "14px",
+                  padding: "40px 20px",
+                  textAlign: "center",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "#8d7f70",
+                    margin: 0,
+                  }}
+                >
+                  Select a saved book to view details.
+                </p>
+              </div>
+            ) : (
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "14px",
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "120px 1fr",
+                    gap: "18px",
+                    padding: "18px",
+                  }}
+                >
+                  <img
+                    src={selectedBook.image}
+                    alt={selectedBook.title}
+                    style={{
+                      width: "120px",
+                      height: "180px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
+                    }}
+                  />
+
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontSize: "22px",
+                        fontWeight: 700,
+                        color: "#1a1a1a",
+                        margin: "0 0 6px",
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {selectedBook.title}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        color: "#5f574f",
+                        margin: "0 0 16px",
+                      }}
+                    >
+                      {selectedBook.authors}
+                    </p>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gap: "10px",
+                        fontSize: "13px",
+                        color: "#5f574f",
+                      }}
+                    >
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: "#1a1a1a" }}>Genre:</strong>{" "}
+                        {selectedBook.genre || "Unknown"}
+                      </p>
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: "#1a1a1a" }}>
+                          Release Year:
+                        </strong>{" "}
+                        {selectedBook.release_year || "Unknown"}
+                      </p>
+                      <p style={{ margin: 0 }}>
+                        <strong style={{ color: "#1a1a1a" }}>List:</strong>{" "}
+                        {selectedBook.listName}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid #f0ece6",
+                    padding: "18px",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: "#8d7f70",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      margin: "0 0 8px",
+                    }}
+                  >
+                    Short Description
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "#5f574f",
+                      lineHeight: 1.6,
+                      margin: 0,
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: showFullDescription ? "unset" : 5,
+                      overflow: showFullDescription ? "visible" : "hidden",
+                    }}
+                  >
+                    {selectedBook.short_description ||
+                      "No description is available for this book yet."}
+                  </p>
+                  {selectedBook.short_description && (
+                    <button
+                      onClick={() =>
+                        setShowFullDescription((prev) => !prev)
+                      }
+                      style={{
+                        marginTop: "10px",
+                        background: "none",
+                        border: "none",
+                        color: "#4f6ef7",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                    >
+                      {showFullDescription ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>

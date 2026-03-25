@@ -47,9 +47,14 @@ class UserCreate(BaseModel):
 class UserRead(BaseModel):
     id: int
     email: str
+    avatar_seed: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+class UserAvatarUpdate(BaseModel):
+    avatar_seed: str
 
 
 class BookListCreate(BaseModel):

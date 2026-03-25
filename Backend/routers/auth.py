@@ -12,10 +12,12 @@ from models import (
     User,
 )
 from schemas import (
+    UserAvatarUpdate,
     UserCreate,
     UserRead,
 )
 from security import (
+    get_current_user,
     hash_password,
     verify_password,
 )
@@ -50,6 +52,30 @@ def _oauth_error_redirect(message: str):
     )
 
 
+def _ensure_default_lists(db: Session, user_id: int):
+    existing_names = {
+        name
+        for (name,) in db.query(BookList.name).filter(BookList.user_id == user_id).all()
+    }
+
+    created_any = False
+    for item in DEFAULT_LISTS:
+        if item["name"] in existing_names:
+            continue
+
+        db.add(
+            BookList(
+                name=item["name"],
+                user_id=user_id,
+                is_protected=item["is_protected"],
+            )
+        )
+        created_any = True
+
+    if created_any:
+        db.commit()
+
+
 @router.post(
     "/register",
     response_model=UserRead,
@@ -68,14 +94,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    for item in DEFAULT_LISTS:
-        new_list = BookList(
-            name=item["name"],
-            user_id=new_user.id,
-            is_protected=item["is_protected"],
-        )
-        db.add(new_list)
-    db.commit()
+    _ensure_default_lists(db, new_user.id)
 
     return new_user
 
@@ -102,6 +121,7 @@ def login(
     if not db_user or not verify_password(form_data.password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
+    _ensure_default_lists(db, db_user.id)
     request.session["user_email"] = db_user.email
     return {"message": "login successful"}
 
@@ -112,6 +132,27 @@ def login(
 def logout(request: Request):
     request.session.clear()
     return {"message": "Logged out"}
+
+
+@router.get("/me", response_model=UserRead)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.put("/me/avatar", response_model=UserRead)
+def update_avatar(
+    payload: UserAvatarUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    db_user = db.query(User).filter(User.id == current_user.id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db_user.avatar_seed = payload.avatar_seed
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 
 @router.get("/auth/google/start")
@@ -207,5 +248,6 @@ def google_login_callback(
         db.commit()
         db.refresh(db_user)
 
+    _ensure_default_lists(db, db_user.id)
     request.session["user_email"] = db_user.email
     return RedirectResponse(url=f"{FRONTEND_URL}/dashboard", status_code=302)
