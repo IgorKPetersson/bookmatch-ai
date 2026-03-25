@@ -453,7 +453,7 @@ export default function Search() {
               }}
             >
               <option key="Genre" value="">
-                None
+                Genre
               </option>
               {GENRES.map((o) => (
                 <option key={o} value={o}>
