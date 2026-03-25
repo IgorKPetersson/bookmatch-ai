@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function BookCard({
   title,
@@ -9,6 +10,8 @@ export default function BookCard({
   release_date,
   image,
   reason,
+  buttonTo,
+  buttonLabel = "Save this book",
 }) {
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer">
@@ -52,9 +55,18 @@ export default function BookCard({
         </div>
 
         {/* Button */}
-        <button className="mt-auto bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded mt-4">
-          Save this book
-        </button>
+        {buttonTo ? (
+          <Link
+            to={buttonTo}
+            className="mt-auto bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded mt-4 text-center"
+          >
+            {buttonLabel}
+          </Link>
+        ) : (
+          <button className="mt-auto bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded mt-4">
+            {buttonLabel}
+          </button>
+        )}
 
       </div>
 

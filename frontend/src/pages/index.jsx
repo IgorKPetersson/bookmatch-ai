@@ -3,6 +3,18 @@ import React from "react";
 import BookCard from "../components/BookCard";
 
 export default function Index() {
+  const pageBackground = "#f7f3ee";
+  const cardBackground = "#ffffff";
+  const textPrimary = "#1a1a1a";
+  const textSecondary = "#5f574f";
+  const textMuted = "#8d7f70";
+  const borderColor = "#e0dbd3";
+  const dividerColor = "#f0ece6";
+  const accent = "#4f6ef7";
+  const accentSoft = "#eef2ff";
+  const accentBorder = "#c7d2fe";
+  const shadow = "0 1px 6px rgba(0,0,0,0.06)";
+
   const mockBooks = [
     {
       title: "The Lies of Locke Lamora",
@@ -37,19 +49,30 @@ export default function Index() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: pageBackground, color: textPrimary }}
+    >
 
       {/* HERO */}
 
-      <section className="bg-gradient-to-b from-blue-50 to-white">
-        <div className="max-w-7xl mx-auto px-8 py-28 grid md:grid-cols-2 gap-16 items-center">
+      <section
+        style={{
+          background: `linear-gradient(180deg, ${accentSoft} 0%, ${pageBackground} 100%)`,
+          borderBottom: `1px solid ${dividerColor}`,
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-8 py-20 grid md:grid-cols-2 gap-10 items-center">
 
           <div>
-            <h1 className="text-5xl font-bold leading-tight mb-6">
+            <h1
+              className="text-5xl font-semibold leading-tight mb-6"
+              style={{ color: textPrimary }}
+            >
               Discover Books That Actually Match Your Taste
             </h1>
 
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg mb-8" style={{ color: textMuted }}>
               BookMatch AI analyzes themes, style and genre from books you love
               to generate truly personalized recommendations.
             </p>
@@ -57,14 +80,26 @@ export default function Index() {
             <div className="flex gap-4">
                 <Link
                   to="/search"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+                  className="px-6 py-3 rounded-lg"
+                  style={{
+                    backgroundColor: accent,
+                    color: "#ffffff",
+                    textDecoration: "none",
+                    boxShadow: shadow,
+                  }}
                 >
                   Try BookMatch
                 </Link>
 
                 <Link
                   to="/about"
-                  className="border px-6 py-3 rounded-lg"
+                  className="px-6 py-3 rounded-lg"
+                  style={{
+                    border: `1px solid ${borderColor}`,
+                    color: textSecondary,
+                    textDecoration: "none",
+                    backgroundColor: cardBackground,
+                  }}
                 >
                   Learn More
                 </Link>
@@ -72,79 +107,76 @@ export default function Index() {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <BookCard {...mockBooks[0]} />
-            <BookCard {...mockBooks[1]} />
+            <BookCard
+              {...mockBooks[0]}
+              buttonTo="/dashboard"
+              buttonLabel="Open Dashboard"
+            />
+            <BookCard
+              {...mockBooks[1]}
+              buttonTo="/dashboard"
+              buttonLabel="Open Dashboard"
+            />
           </div>
 
         </div>
       </section>
 
-
-      {/* TRY IT DEMO */}
-
-      <section className="max-w-3xl mx-auto px-8 py-24">
-
-        <div className="bg-white shadow-xl rounded-xl p-8 flex flex-col gap-4">
-
-          <h2 className="text-xl font-semibold mb-2">
-            Try the recommendation engine
-          </h2>
-
-          <input
-            className="border rounded p-3"
-            placeholder="Enter a book you like"
-          />
-
-          <input
-            className="border rounded p-3"
-            placeholder="Another book you enjoyed"
-          />
-
-          <input
-            className="border rounded p-3"
-            placeholder="One more favorite"
-          />
-
-          <button className="bg-green-600 hover:bg-green-700 text-white py-3 rounded mt-2">
-            Generate Recommendations
-          </button>
-
-        </div>
-
-      </section>
-
-
       {/* HOW IT WORKS */}
 
-      <section id="how" className="bg-white py-28">
+      <section id="how" className="py-16">
         <div className="max-w-7xl mx-auto px-8">
 
-          <h2 className="text-3xl font-bold text-center mb-16">
+          <h2
+            className="text-3xl font-semibold text-center mb-8"
+            style={{ color: textPrimary }}
+          >
             How It Works
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-10 text-center">
+          <div className="grid md:grid-cols-3 gap-6 text-center">
 
-            <div className="p-6">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <div className="text-3xl mb-4">📚</div>
               <h3 className="font-semibold text-lg mb-2">Enter Books</h3>
-              <p className="text-gray-600">
+              <p style={{ color: textSecondary }}>
                 Provide a few books you already enjoy.
               </p>
             </div>
 
-            <div className="p-6">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <div className="text-3xl mb-4">🤖</div>
               <h3 className="font-semibold text-lg mb-2">AI Analysis</h3>
-              <p className="text-gray-600">
+              <p style={{ color: textSecondary }}>
                 The AI analyzes writing style, themes and genre.
               </p>
             </div>
 
-            <div className="p-6">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <div className="text-3xl mb-4">✨</div>
               <h3 className="font-semibold text-lg mb-2">Get Matches</h3>
-              <p className="text-gray-600">
+              <p style={{ color: textSecondary }}>
                 Receive personalized recommendations instantly.
               </p>
             </div>
@@ -157,33 +189,61 @@ export default function Index() {
 
       {/* FEATURES */}
 
-      <section id="features" className="bg-gray-50 py-28">
+      <section
+        id="features"
+        className="py-16"
+        style={{ borderTop: `1px solid ${dividerColor}` }}
+      >
 
         <div className="max-w-7xl mx-auto px-8">
 
-          <h2 className="text-3xl font-bold text-center mb-16">
+          <h2
+            className="text-3xl font-semibold text-center mb-8"
+            style={{ color: textPrimary }}
+          >
             Why BookMatch AI
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <h3 className="font-semibold mb-2">AI Taste Matching</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm" style={{ color: textSecondary }}>
                 Discover books that match tone, theme and narrative style.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <h3 className="font-semibold mb-2">Smart Explanations</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm" style={{ color: textSecondary }}>
                 Understand why each recommendation fits your taste.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div
+              className="p-6 rounded-xl"
+              style={{
+                background: cardBackground,
+                boxShadow: shadow,
+                border: `1px solid ${dividerColor}`,
+              }}
+            >
               <h3 className="font-semibold mb-2">Personal Book Lists</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm" style={{ color: textSecondary }}>
                 Save and organize recommendations in custom lists.
               </p>
             </div>
@@ -197,16 +257,24 @@ export default function Index() {
 
       {/* PREVIEW RECOMMENDATIONS */}
 
-      <section className="max-w-7xl mx-auto px-8 py-28">
+      <section className="max-w-7xl mx-auto px-8 py-20">
 
-        <h2 className="text-3xl font-bold text-center mb-16">
+        <h2
+          className="text-3xl font-semibold text-center mb-10"
+          style={{ color: textPrimary }}
+        >
           Example Recommendations
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
 
           {mockBooks.map((book, i) => (
-            <BookCard key={i} {...book} />
+            <BookCard
+              key={i}
+              {...book}
+              buttonTo="/dashboard"
+              buttonLabel="Open Dashboard"
+            />
           ))}
 
         </div>
@@ -216,15 +284,31 @@ export default function Index() {
 
       {/* CTA */}
 
-      <section className="bg-blue-600 py-20 text-center text-white">
+      <section
+        className="py-14 text-center"
+        style={{
+          backgroundColor: accent,
+          color: "#ffffff",
+          borderTop: `1px solid ${accentBorder}`,
+        }}
+      >
 
-        <h2 className="text-3xl font-bold mb-6">
+        <h2 className="text-3xl font-bold mb-4">
           Ready to discover your next favorite book?
         </h2>
 
-        <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold">
+        <Link
+          to="/search"
+          className="inline-block px-8 py-4 rounded-lg font-semibold"
+          style={{
+            backgroundColor: "#ffffff",
+            color: accent,
+            boxShadow: shadow,
+            textDecoration: "none",
+          }}
+        >
           Start Matching
-        </button>
+        </Link>
 
       </section>
     </div>

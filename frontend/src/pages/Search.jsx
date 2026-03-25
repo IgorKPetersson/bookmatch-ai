@@ -255,9 +255,17 @@ export default function Search() {
 
   return (
     <div style={{ backgroundColor: pageBackground, minHeight: "100vh" }}>
-      <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold" style={{ color: textPrimary }}>
+      <div className="max-w-7xl mx-auto px-4 pb-10 sm:px-6 lg:px-8 lg:pb-16">
+        <div
+          style={{
+            background: "white",
+            borderRadius: "0 0 16px 16px",
+            padding: "24px 28px",
+            marginBottom: "40px",
+            boxShadow: shadow,
+          }}
+        >
+          <h1 className="text-2xl font-semibold" style={{ color: textPrimary }}>
             Book Recommendations
           </h1>
           <p className="mt-2 max-w-3xl" style={{ color: textMuted }}>
