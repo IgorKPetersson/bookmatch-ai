@@ -164,3 +164,7 @@ Firstdesign/
 
 # Local private notes
 *.local.md
+
+.vscode/settings.json
+
+.vscode

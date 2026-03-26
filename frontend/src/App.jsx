@@ -8,11 +8,12 @@ import Dashboard from "./pages/Dashboard";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import Footer from "./components/Footer";
+import ResetPassword from "./pages/ResetPassword";
+import RequestReset from "./pages/RequestReset";
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
-
       <Navbar />
 
       <main className="flex-1">
@@ -24,11 +25,12 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/forgot-password" element={<RequestReset />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </main>
 
       <Footer />
-
     </div>
   );
 }
