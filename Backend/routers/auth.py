@@ -249,18 +249,17 @@ def google_login_callback(
 
 
 @router.post("/auth/reset_link")
-async def send_reset_link(
+def send_reset_link(
     data: RequestReset,
     db: Session = Depends(get_db),
 ):
-    result = await db.execute(select(User).where(User.email == data.email))
+    user = db.query(User).filter(User.email == data.email).first()
 
-    user = result.scalars().first()
     if user:
         token = secrets.token_urlsafe(32)
         reset_token = PasswordResetTokens(token=token, user_id=user.id)
         db.add(reset_token)
-        await db.commit()
+        db.commit()
         print(f"Reset link: http://localhost:5173/reset-password?token={token}")
     return {
         "message": "If an account exists with this email, a reset link has been sent."
@@ -268,12 +267,12 @@ async def send_reset_link(
 
 
 @router.put("/auth/reset_password")
-async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
-    result = await db.execute(
-        select(PasswordResetTokens).where(PasswordResetTokens.token == data.token)
+def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    reset_token = (
+        db.query(PasswordResetTokens)
+        .filter(PasswordResetTokens.token == data.token)
+        .first()
     )
-
-    reset_token = result.scalars().first()
 
     if not reset_token:
         raise HTTPException(status_code=400, detail="Token does not exist.")
@@ -286,14 +285,12 @@ async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
 
     hashed_password = hash_password(data.new_password)
 
-    result = await db.execute(select(User).where(User.id == reset_token.user_id))
-
-    user = result.scalars().first()
+    user = db.query(User).filter(User.id == reset_token.user_id).first()
 
     user.hashed_password = hashed_password
 
     reset_token.used = True
 
-    await db.commit()
+    db.commit()
 
-    return {"message": "Password reset was successful."}
+    return {"message": "Password reset was successful"}
