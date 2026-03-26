@@ -162,7 +162,10 @@ export default function Auth() {
               {loading ? "Logging in..." : "Log in"}
             </button>
 
-            <div className="my-4" style={{ borderTop: "1px solid #f0ece6" }}></div>
+            <div
+              className="my-4"
+              style={{ borderTop: "1px solid #f0ece6" }}
+            ></div>
 
             <GoogleAuthButton label="Continue with Google" />
 
@@ -171,7 +174,11 @@ export default function Auth() {
               style={{ color: "#5f574f" }}
             >
               Don't have an account?{" "}
-              <Link to="/register" className="hover:underline" style={{ color: "#4f6ef7" }}>
+              <Link
+                to="/register"
+                className="hover:underline"
+                style={{ color: "#4f6ef7" }}
+              >
                 Create one
               </Link>
             </p>
