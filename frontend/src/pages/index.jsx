@@ -15,7 +15,7 @@ export default function Index() {
   const accentBorder = "#c7d2fe";
   const shadow = "0 1px 6px rgba(0,0,0,0.06)";
 
-  const mockBooks = [
+  const heroBooks = [
     {
       title: "The Lies of Locke Lamora",
       authors: "Scott Lynch",
@@ -27,6 +27,39 @@ export default function Index() {
       reason: "Recommended because you liked The Name of the Wind",
     },
     {
+      title: "Do Androids Dream of Electric Sheep?",
+      authors: "Philip K. Dick",
+      description: "A haunting science fiction novel exploring humanity, empathy, and artificial life.",
+      genre: "Science Fiction",
+      release_date: "1968",
+      isbn: "9780345404473",
+      image: "https://covers.openlibrary.org/b/isbn/9780345404473-L.jpg",
+      reason: "Recommended because you enjoy thought-provoking speculative fiction",
+    },
+  ];
+
+  const mockBooks = [
+    {
+      title: "Dune",
+      authors: "Frank Herbert",
+      description: "A sweeping science fiction epic about power, prophecy, and survival on Arrakis.",
+      genre: "Science Fiction",
+      release_date: "1965",
+      isbn: "9780441172719",
+      image: "https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg",
+      reason: "Recommended because you enjoy immersive worlds and political intrigue",
+    },
+    {
+      title: "Harry Potter and the Sorcerer's Stone",
+      authors: "J.K. Rowling",
+      description: "A young wizard discovers a hidden world of magic, friendship, and danger.",
+      genre: "Fantasy",
+      release_date: "1997",
+      isbn: "9780590353427",
+      image: "https://covers.openlibrary.org/b/isbn/9780590353427-L.jpg",
+      reason: "Recommended because you enjoy magical worlds and unforgettable characters",
+    },
+    {
       title: "Mistborn",
       authors: "Brandon Sanderson",
       description: "A dark world where ash falls from the sky and a rebellion begins.",
@@ -35,16 +68,6 @@ export default function Index() {
       isbn: "9780765311788",
       image: "https://covers.openlibrary.org/b/isbn/9780765311788-L.jpg",
       reason: "Recommended because you liked Dune",
-    },
-    {
-      title: "The Blade Itself",
-      authors: "Joe Abercrombie",
-      description: "A gritty character-driven fantasy with political intrigue.",
-      genre: "Fantasy",
-      release_date: "2006",
-      isbn: "9780575079798",
-      image: "https://covers.openlibrary.org/b/isbn/9781591025948-L.jpg",
-      reason: "Recommended because you liked The Hobbit",
     },
   ];
 
@@ -108,12 +131,12 @@ export default function Index() {
 
           <div className="grid grid-cols-2 gap-6">
             <BookCard
-              {...mockBooks[0]}
+              {...heroBooks[0]}
               buttonTo="/dashboard"
               buttonLabel="Open Dashboard"
             />
             <BookCard
-              {...mockBooks[1]}
+              {...heroBooks[1]}
               buttonTo="/dashboard"
               buttonLabel="Open Dashboard"
             />
