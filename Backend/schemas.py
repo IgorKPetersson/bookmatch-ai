@@ -155,3 +155,12 @@ class SaveBookList(BaseModel):
     book_list_id: Optional[int] = None
     name: Optional[str] = None
     books: List[SaveBook]
+
+
+class RequestReset(BaseModel):
+    email: str
+
+
+class ResetPassword(BaseModel):
+    token: str
+    new_password: str
