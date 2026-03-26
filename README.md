@@ -1,4 +1,4 @@
-# 👨‍💻 Authors
+# Authors
 
 Igor Petersson - https://github.com/IgorKPetersson/
 Oliver Cupan - https://github.com/OliverCupan
