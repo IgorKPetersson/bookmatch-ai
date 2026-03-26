@@ -5,7 +5,8 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv()  # Läser .env-filen
+# Read local .env file
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -27,9 +28,7 @@ booklist_columns = {column["name"] for column in inspector.get_columns("booklist
 if "is_protected" in booklist_columns:
     with engine.begin() as connection:
         connection.execute(
-            text(
-                "UPDATE booklists SET is_protected = FALSE WHERE is_protected IS NULL"
-            )
+            text("UPDATE booklists SET is_protected = FALSE WHERE is_protected IS NULL")
         )
 
 
