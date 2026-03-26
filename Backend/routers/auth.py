@@ -1,5 +1,6 @@
 import os
 import secrets
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import requests
@@ -7,20 +8,14 @@ from db import get_db
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from models import (
-    BookList,
-    User,
-)
-from schemas import (
-    UserAvatarUpdate,
-    UserCreate,
-    UserRead,
-)
+from models import BookList, PasswordResetTokens, User
+from schemas import RequestReset, ResetPassword, UserAvatarUpdate, UserCreate, UserRead
 from security import (
     get_current_user,
     hash_password,
     verify_password,
 )
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Auth"])
@@ -251,3 +246,54 @@ def google_login_callback(
     _ensure_default_lists(db, db_user.id)
     request.session["user_email"] = db_user.email
     return RedirectResponse(url=f"{FRONTEND_URL}/dashboard", status_code=302)
+
+
+@router.post("/auth/reset_link")
+async def send_reset_link(
+    data: RequestReset,
+    db: Session = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.email == data.email))
+
+    user = result.scalars().first()
+    if user:
+        token = secrets.token_urlsafe(32)
+        reset_token = PasswordResetTokens(token=token, user_id=user.id)
+        db.add(reset_token)
+        await db.commit()
+        print(f"Reset link: http://localhost:5173/reset-password?token={token}")
+    return {
+        "message": "If an account exists with this email, a reset link has been sent."
+    }
+
+
+@router.put("/auth/reset_password")
+async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    result = await db.execute(
+        select(PasswordResetTokens).where(PasswordResetTokens.token == data.token)
+    )
+
+    reset_token = result.scalars().first()
+
+    if not reset_token:
+        raise HTTPException(status_code=400, detail="Token does not exist.")
+
+    if reset_token.used:
+        raise HTTPException(status_code=400, detail="This token has already been used.")
+
+    if reset_token.created_at < datetime.now(timezone.utc) - timedelta(minutes=15):
+        raise HTTPException(status_code=400, detail="This token has expired.")
+
+    hashed_password = hash_password(data.new_password)
+
+    result = await db.execute(select(User).where(User.id == reset_token.user_id))
+
+    user = result.scalars().first()
+
+    user.hashed_password = hashed_password
+
+    reset_token.used = True
+
+    await db.commit()
+
+    return {"message": "Password reset was successful."}
