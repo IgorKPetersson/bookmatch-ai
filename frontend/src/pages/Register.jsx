@@ -31,6 +31,7 @@ function Register() {
       const response = await axios.post("http://localhost:8000/register", {
         email,
         password,
+        full_name: `${firstName} ${lastName}`.trim(),
       });
 
       console.log(response.data);

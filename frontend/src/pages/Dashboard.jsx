@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import "./Dashboard.css";
 
 export default function Dashboard() {
   const sectionLabelStyle = {
@@ -17,9 +18,11 @@ export default function Dashboard() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accountEmail, setAccountEmail] = useState("");
+  const [accountName, setAccountName] = useState("");
   const [avatarSeed, setAvatarSeed] = useState("");
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const selectedBookRef = useRef(null);
 
   const recentlyAdded = lists
     .flatMap((l) => l.books.map((b) => ({ ...b, listName: l.name })))
@@ -198,17 +201,33 @@ export default function Dashboard() {
       .then((data) => {
         setIsAuthenticated(true);
         setAccountEmail(data?.email || "");
+        setAccountName(
+          data?.full_name ||
+            data?.email?.split("@")[0] ||
+            "Personal BookMatch account",
+        );
         setAvatarSeed(data?.avatar_seed || "");
       })
       .catch(() => {
         setIsAuthenticated(false);
         setAccountEmail("");
+        setAccountName("");
         setAvatarSeed("");
       })
       .finally(() => {
         setAuthChecked(true);
       });
   }, []);
+
+  useEffect(() => {
+    if (selectedBook && selectedBookRef.current) {
+      const top = selectedBookRef.current.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: Math.max(top - 120, 0),
+        behavior: "smooth",
+      });
+    }
+  }, [selectedBook]);
 
   if (authChecked && !isAuthenticated) {
     return (
@@ -309,53 +328,40 @@ export default function Dashboard() {
 
   return (
     <div style={{ backgroundColor: "#f7f3ee", minHeight: "100vh" }}>
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-          padding: "0 32px 64px",
-        }}
-      >
+      <div className="dashboard-container">
         {/* Stats strip */}
         <div
+          className="dashboard-stats"
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "32px",
             background: "white",
             borderRadius: "0 0 16px 16px",
             padding: "14px 28px",
             marginBottom: "40px",
             boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
-            fontSize: "14px",
-            color: "#555",
           }}
         >
           <span>
             Total Books:{" "}
             <strong style={{ color: "#1a1a1a" }}>{totalBooks}</strong>
           </span>
-          <span style={{ color: "#ddd" }}>|</span>
+          <span className="dashboard-divider">|</span>
           <span>
             Reading Lists:{" "}
             <strong style={{ color: "#1a1a1a" }}>{lists.length}</strong>
           </span>
-          <span style={{ color: "#ddd" }}>|</span>
+          <span className="dashboard-divider">|</span>
           <span>
             Latest Book Read:{" "}
             <strong style={{ color: "#1a1a1a" }}>{currentlyReading}</strong>
           </span>
-          <span style={{ marginLeft: "auto", fontSize: "20px" }}>📖</span>
+          <span className="dashboard-stat-icon" style={{ fontSize: "20px" }}>
+            📖
+          </span>
         </div>
 
         {/* Main grid */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 340px",
-            gap: "32px",
-            alignItems: "start",
-          }}
+          className="dashboard-grid"
         >
           {/* LEFT — Reading Lists */}
           <div>
@@ -432,7 +438,7 @@ export default function Dashboard() {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    Personal BookMatch account
+                    {accountName}
                   </p>
                 </div>
               </div>
@@ -1128,6 +1134,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div
+                ref={selectedBookRef}
                 style={{
                   background: "white",
                   borderRadius: "14px",

@@ -705,13 +705,16 @@ export default function Search() {
                       </p>
                       <p
                         style={{
-                          fontSize: "13px",
+                          fontSize: "12px",
                           color: textSecondary,
                           lineHeight: 1.6,
                           margin: "0 0 14px",
                           flex: 1,
                         }}
                       >
+                        <strong style={{ color: textPrimary }}>
+                          Recommended because:
+                        </strong>{" "}
                         {rec.reason}
                       </p>
 

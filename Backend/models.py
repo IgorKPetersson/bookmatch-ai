@@ -10,6 +10,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
+    full_name = Column(String, nullable=True)
     hashed_password = Column(String)
     avatar_seed = Column(String, nullable=True)
 
@@ -120,3 +121,11 @@ class PasswordResetTokens(Base):
     used = Column(Boolean, nullable=False, default=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class DismissedRecommendation(Base):
+    __tablename__ = "dismissed_recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False, index=True)
