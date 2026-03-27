@@ -1,7 +1,7 @@
 import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
 import { Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Index from "./pages/index";
 import Search from "./pages/Search";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
