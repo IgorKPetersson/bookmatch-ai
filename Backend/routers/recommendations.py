@@ -13,6 +13,7 @@ from models import (
     BookListItem,
     RecommendationList,
     RecommendedBook,
+    DismissedRecommendation,
     User,
 )
 from schemas import (
@@ -32,6 +33,13 @@ load_dotenv("../.env")
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
 
 client = Anthropic()
+
+
+def _norm_title(title: str | None) -> str | None:
+    if not title:
+        return None
+    cleaned = title.strip().lower()
+    return cleaned or None
 
 
 @router.post("", response_model=RecommendationResponse)
@@ -74,7 +82,31 @@ Respond ONLY in this exact JSON format, no other text:
 
     claude_books = json.loads(claude_response)
 
+    # Titles already saved or dismissed by this user
+    saved_titles_raw = [
+        title
+        for (title,) in (
+            db.query(Book.title)
+            .join(BookListItem, BookListItem.book_id == Book.id)
+            .join(BookList, BookList.id == BookListItem.booklist_id)
+            .filter(BookList.user_id == current_user.id)
+            .all()
+        )
+    ]
+    dismissed_titles_raw = [
+        title
+        for (title,) in db.query(DismissedRecommendation.title)
+        .filter(DismissedRecommendation.user_id == current_user.id)
+        .all()
+    ]
+    saved_titles = {_norm_title(t) for t in saved_titles_raw if _norm_title(t)}
+    dismissed_titles = {_norm_title(t) for t in dismissed_titles_raw if _norm_title(t)}
+    banned_titles = saved_titles | dismissed_titles
+    banned_titles_for_prompt = sorted(t for t in (saved_titles | dismissed_titles) if t)
+
     for book in claude_books:
+        if _norm_title(book.get("title")) in banned_titles:
+            continue
         url = "https://www.googleapis.com/books/v1/volumes"
         params = {
             "q": book["title"] + " " + book["authors"],
@@ -144,10 +176,34 @@ def reshuffle_rejected_books(
 
     recommendations = []
 
+    # Titles already saved or dismissed by this user
+    saved_titles_raw = [
+        title
+        for (title,) in (
+            db.query(Book.title)
+            .join(BookListItem, BookListItem.book_id == Book.id)
+            .join(BookList, BookList.id == BookListItem.booklist_id)
+            .filter(BookList.user_id == current_user.id)
+            .all()
+        )
+    ]
+    dismissed_titles_raw = [
+        title
+        for (title,) in db.query(DismissedRecommendation.title)
+        .filter(DismissedRecommendation.user_id == current_user.id)
+        .all()
+    ]
+    saved_titles = {_norm_title(t) for t in saved_titles_raw if _norm_title(t)}
+    dismissed_titles = {_norm_title(t) for t in dismissed_titles_raw if _norm_title(t)}
+    banned_titles = saved_titles | dismissed_titles | {
+        _norm_title(t) for t in rejected_books if _norm_title(t)
+    } | {_norm_title(t) for t in keep_books if _norm_title(t)}
+    banned_titles_for_prompt = sorted(t for t in banned_titles if t)
+
     prompt = f"""I need book recommendations for someone who enjoys these books: {", ".join(favorite_books)}.
 {"They prefer the genre: " + request.genre + "." if request.genre else ""}
 
-Suggest exactly {len(rejected_books)} books they would enjoy. Do NOT recommend any of the books they already listed or any of these books {", ".join(rejected_books)} nor any of these either {", ".join(keep_books)}.
+Suggest exactly {len(rejected_books)} books they would enjoy. Do NOT recommend any of the books they already listed or any of these books {", ".join(banned_titles_for_prompt)}.
 
 Respond ONLY in this exact JSON format, no other text:
 [
@@ -169,6 +225,8 @@ Respond ONLY in this exact JSON format, no other text:
     claude_books = json.loads(claude_response)
 
     for book in claude_books:
+        if _norm_title(book.get("title")) in banned_titles:
+            continue
         url = "https://www.googleapis.com/books/v1/volumes"
         params = {
             "q": book["title"] + " " + book["authors"],
@@ -257,13 +315,14 @@ def save_booklist(
     books = request.books
 
     for book in books:
-        duplicate_book = (
+        duplicate_any_list = (
             db.query(BookListItem)
             .join(Book)
-            .filter(BookListItem.booklist_id == book_list.id, Book.title == book.title)
+            .join(BookList, BookList.id == BookListItem.booklist_id)
+            .filter(BookList.user_id == current_user.id, Book.title == book.title)
             .first()
         )
-        if duplicate_book:
+        if duplicate_any_list:
             raise HTTPException(status_code=409, detail="Book already saved")
         add_book = Book(
             title=book.title,

@@ -83,6 +83,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
     new_user = User(
         email=user.email,
+        full_name=user.full_name,
         hashed_password=hash_password(user.password),
     )
     db.add(new_user)
@@ -236,12 +237,16 @@ def google_login_callback(
     if db_user is None:
         db_user = User(
             email=email,
+            full_name=userinfo.get("name"),
             # Random local password keeps the current schema intact for OAuth users.
             hashed_password=hash_password(secrets.token_urlsafe(32)),
         )
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
+    elif not db_user.full_name and userinfo.get("name"):
+        db_user.full_name = userinfo.get("name")
+        db.commit()
 
     _ensure_default_lists(db, db_user.id)
     request.session["user_email"] = db_user.email

@@ -10,6 +10,7 @@ import About from "./pages/About";
 import Footer from "./components/Footer";
 import ResetPassword from "./pages/ResetPassword";
 import RequestReset from "./pages/RequestReset";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       <Navbar />
 
       <main className="flex-1">
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/search" element={<Search />} />

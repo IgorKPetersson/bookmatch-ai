@@ -42,11 +42,13 @@ class BookRead(BaseModel):
 class UserCreate(BaseModel):
     email: str
     password: str
+    full_name: Optional[str] = None
 
 
 class UserRead(BaseModel):
     id: int
     email: str
+    full_name: Optional[str] = None
     avatar_seed: Optional[str] = None
 
     class Config:

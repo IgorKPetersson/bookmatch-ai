@@ -58,6 +58,14 @@ export default function RequestReset() {
             >
               Reset Password
             </h1>
+            <p
+              className="text-sm leading-6 mb-4 text-center"
+              style={{ color: "#5f574f" }}
+            >
+              Enter the email you used to create your account. We’ll send a reset
+              link that stays active for 15 minutes. Check your spam folder if
+              you don’t see it right away.
+            </p>
 
             {error && (
               <div
