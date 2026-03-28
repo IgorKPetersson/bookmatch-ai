@@ -207,6 +207,10 @@ export default function Dashboard() {
             "Personal BookMatch account",
         );
         setAvatarSeed(data?.avatar_seed || "");
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
       })
       .catch(() => {
         setIsAuthenticated(false);
