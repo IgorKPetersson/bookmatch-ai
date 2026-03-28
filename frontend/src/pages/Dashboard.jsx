@@ -208,9 +208,6 @@ export default function Dashboard() {
         );
         setAvatarSeed(data?.avatar_seed || "");
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 300);
       })
       .catch(() => {
         setIsAuthenticated(false);
