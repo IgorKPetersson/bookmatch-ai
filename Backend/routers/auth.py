@@ -265,7 +265,7 @@ def send_reset_link(
         reset_token = PasswordResetTokens(token=token, user_id=user.id)
         db.add(reset_token)
         db.commit()
-        print(f"Reset link: http://localhost:5173/reset-password?token={token}")
+        print(f"Reset link: {FRONTEND_URL}reset-password?token={token}")
     return {
         "message": "If an account exists with this email, a reset link has been sent."
     }
