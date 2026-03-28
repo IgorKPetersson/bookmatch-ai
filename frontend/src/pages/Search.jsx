@@ -83,7 +83,7 @@ export default function Search() {
 
   async function loadLists() {
     try {
-      const res = await fetch("http://localhost:8000/booklists", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/booklists", {
         method: "GET",
         credentials: "include",
       });
@@ -109,7 +109,7 @@ export default function Search() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:8000/books", {
+    fetch(import.meta.env.VITE_API_URL + "/books", {
       credentials: "include",
     })
       .then((res) => {
@@ -142,7 +142,7 @@ export default function Search() {
 
     const timeout = setTimeout(() => {
       fetch(
-        `http://localhost:8000/recommendations/search?query=${query}&start=${page * 8}`,
+        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * 8}`,
         { credentials: "include" },
       )
         .then((res) => res.json())
@@ -172,7 +172,7 @@ export default function Search() {
       setNeedsLogin(false);
       setSubmittedBooks(books);
       setSubmittedGenre(genre);
-      const res = await fetch("http://localhost:8000/recommendations", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/recommendations", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -201,7 +201,7 @@ export default function Search() {
   }
 
   function handleDismiss(i) {
-    fetch("http://localhost:8000/recommendations/reshuffle", {
+    fetch(import.meta.env.VITE_API_URL + "/recommendations/reshuffle", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -225,7 +225,7 @@ export default function Search() {
 
   async function handleAddToList(rec, i) {
     const listId = selectedListPerRec[i] ?? lists[0]?.id;
-    const res = await fetch("http://localhost:8000/recommendations/save", {
+    const res = await fetch(import.meta.env.VITE_API_URL + "/recommendations/save", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

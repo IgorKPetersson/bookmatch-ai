@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const apiBaseUrl = "http://localhost:8000";
+const apiBaseUrl = import.meta.env.VITE_API_URL;
 
 export default function GoogleAuthButton({
   label = "Continue with Google",

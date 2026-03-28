@@ -4,7 +4,7 @@ export default function Home() {
   const [status, setStatus] = useState("Loading...")
 
   useEffect(() => {
-    fetch("http://localhost:8000/health")
+    fetch(import.meta.env.VITE_API_URL + "/health")
       .then(res => res.json())
       .then(data => setStatus(data.status))
       .catch(() => setStatus("Backend not reachable"))

@@ -50,7 +50,7 @@ export default function Dashboard() {
 
   function handleCreateList() {
     if (!newListName.trim()) return;
-    fetch("http://localhost:8000/booklists", {
+    fetch(import.meta.env.VITE_API_URL + "/booklists", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -75,14 +75,14 @@ export default function Dashboard() {
   }
 
   function handleDeleteList(listId) {
-    fetch(`http://localhost:8000/booklists/${listId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/booklists/${listId}`, {
       method: "DELETE",
       credentials: "include",
     }).then(() => setLists(lists.filter((l) => l.id !== listId)));
   }
 
   function handleRemoveBook(listId, bookId) {
-    fetch(`http://localhost:8000/booklists/${listId}/books/${bookId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/booklists/${listId}`, {
       method: "DELETE",
       credentials: "include",
     }).then(() => {
@@ -104,12 +104,12 @@ export default function Dashboard() {
   function handleMoveBook(targetListId) {
     if (!movingBook) return;
     const { book, fromListId } = movingBook;
-    fetch(`http://localhost:8000/booklists/${fromListId}/books/${book.id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/booklists/${fromListId}/books/${book.id}`, {
       method: "DELETE",
       credentials: "include",
     })
       .then(() =>
-        fetch(`http://localhost:8000/booklists/${targetListId}/books`, {
+        fetch(`${import.meta.env.VITE_API_URL}/booklists/${targetListId}/books`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/JSON" },
@@ -131,7 +131,7 @@ export default function Dashboard() {
   }
 
   async function handleLogout() {
-    await fetch("http://localhost:8000/logout", {
+    await fetch(import.meta.env.VITE_API_URL + "/logout", {
       method: "POST",
       credentials: "include",
     });
@@ -146,7 +146,7 @@ export default function Dashboard() {
 
     try {
       setSavingAvatar(true);
-      const res = await fetch("http://localhost:8000/me/avatar", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/me/avatar", {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -168,7 +168,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:8000/booklists", {
+    fetch(import.meta.env.VITE_API_URL + "/booklists", {
       method: "GET",
       credentials: "include",
     })
@@ -188,7 +188,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/me", {
+    fetch(import.meta.env.VITE_API_URL + "/me", {
       credentials: "include",
     })
       .then((res) => {

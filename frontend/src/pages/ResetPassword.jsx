@@ -29,7 +29,7 @@ export default function ResetPassword() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/auth/reset_password", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/auth/reset_password", {
         method: "PUT",
         credentials: "include",
         headers: {

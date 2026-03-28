@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 
 export default function Auth() {
-  const apiBaseUrl = "http://localhost:8000";
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

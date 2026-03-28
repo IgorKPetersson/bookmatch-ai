@@ -21,7 +21,7 @@ export default function RequestReset() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/auth/reset_link", {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/auth/reset_link", {
         method: "POST",
         credentials: "include",
         headers: {

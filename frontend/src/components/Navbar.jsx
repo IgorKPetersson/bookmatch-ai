@@ -6,7 +6,7 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8000/books", {
+    fetch(import.meta.env.VITE_API_URL + "/books", {
       credentials: "include"
     })
       .then(res => {
@@ -16,7 +16,7 @@ export default function Navbar() {
   }, []);
 
   async function handleLogout() {
-    await fetch("http://localhost:8000/logout", {
+    await fetch(import.meta.env.VITE_API_URL + "/logout", {
       method: "POST",
       credentials: "include"
     });
