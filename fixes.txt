@@ -1,0 +1,23 @@
+Fixes!
+
+Dashboard.jsx: 
+1. Make the SELECTED BOOK - card title smaller it is too big.
+2. ACCOUNT OVERVIEW - add datafields more comparable to a user login such as user / handle name and so forth
+3. ADD a list search for books already in the list.
+4. The Recently Added logic doesn't work
+
+Search.jsx:
+1. Book Recommendations title text - too big
+2. Book Recommendations paragraph text - too big, wrong color
+3. AI Recommendations for You Book Title text - too big
+4. AI Recommendations for You Drop down list menu - too big 
+5. 1. AI Recommendations for You Drop down Add to list button - too big 
+6. AI Recommendations for You Drop down Dismiss button - too big 
+7. Results for Book 1, 2, 3 increase the pagination/result to either  3 x 3 grid or 5 x 2 to match the AI Recommendations for You BookCard
+
+Contact.jsx
+1. Send Message Button - get it to work byu sending the message to a real mail adress.
+
+Others: 
+Ge the forgot psssword function to work.
+Add a delete accunt function
