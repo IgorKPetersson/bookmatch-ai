@@ -192,12 +192,14 @@ export default function Dashboard() {
       credentials: "include",
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Not authenticated");
+        if (!res.ok) {
+          throw new Error("Not authenticated");
+        }
+
         return res.json();
       })
       .then((data) => {
         setIsAuthenticated(true);
-        setUser(data);
         setAccountEmail(data?.email || "");
         setAccountName(
           data?.full_name ||
@@ -205,18 +207,16 @@ export default function Dashboard() {
             "Personal BookMatch account",
         );
         setAvatarSeed(data?.avatar_seed || "");
-
-        // Fetch booklists only after user is authenticated
-        fetchBooklists();
       })
       .catch(() => {
         setIsAuthenticated(false);
-        setUser(null);
         setAccountEmail("");
         setAccountName("");
         setAvatarSeed("");
       })
-      .finally(() => setAuthChecked(true));
+      .finally(() => {
+        setAuthChecked(true);
+      });
   }, []);
 
   useEffect(() => {
