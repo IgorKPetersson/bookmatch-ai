@@ -55,6 +55,16 @@ export default function Search() {
   const [submittedBooks, setSubmittedBooks] = useState([]);
   const [submittedGenre, setSubmittedGenre] = useState("");
 
+  function dedupeRecs(recs) {
+    const seen = new Set();
+    return recs.filter((r) => {
+      const key = (r.isbn || r.title || "").toLowerCase().trim();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   const activeBookNumber =
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
@@ -187,7 +197,8 @@ export default function Search() {
 
       if (res.ok) {
         await loadLists();
-        setRecommendations(data.recommendations.slice(0, 2));
+        const unique = dedupeRecs(data.recommendations || []);
+        setRecommendations(unique.slice(0, 2));
         setSelectedListPerRec({});
       } else if (res.status === 401) {
         setNeedsLogin(true);
@@ -218,9 +229,10 @@ export default function Search() {
       .then((res) => res.json())
       .then((data) => {
         const newBook = data.recommendations[0];
-        setRecommendations((prev) =>
-          prev.map((rec, idx) => (idx === i ? newBook : rec)),
-        );
+        setRecommendations((prev) => {
+          const next = prev.map((rec, idx) => (idx === i ? newBook : rec));
+          return dedupeRecs(next);
+        });
       });
   }
 

@@ -1,8 +1,9 @@
 ## Fixes!
 
 ## Landing page
-1. [x] Fix title. It says frontend now
-2. [x] Fix tabb-icon. It is react standard icon now
+[x] Fix title. It says frontend now
+[x] Fix tabb-icon. It is react standard icon now
+[x] Fix Logotype. Change logo form texdt to an acutal logo.
 
 
 ## Database:
