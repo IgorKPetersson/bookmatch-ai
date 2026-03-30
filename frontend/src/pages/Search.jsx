@@ -65,11 +65,17 @@ export default function Search() {
     });
   }
 
+  function recKey(r) {
+    return (r?.isbn || r?.title || "").toLowerCase().trim();
+  }
+
   function pickUnique(recs, limit, existingTitles = []) {
-    const seen = new Set(existingTitles.map((t) => t.toLowerCase().trim()).filter(Boolean));
+    const seen = new Set(
+      existingTitles.map((t) => t.toLowerCase().trim()).filter(Boolean),
+    );
     const result = [];
     for (const r of recs) {
-      const key = (r?.isbn || r?.title || "").toLowerCase().trim();
+      const key = recKey(r);
       if (!key || seen.has(key)) continue;
       seen.add(key);
       result.push(r);
@@ -243,9 +249,27 @@ export default function Search() {
       .then((data) => {
         const incoming = data.recommendations || [];
         setRecommendations((prev) => {
-          const keep = prev.filter((_, idx) => idx !== i);
-          const filled = [...keep, ...incoming];
-          return pickUnique(filled, 2);
+          const otherIdx = i === 0 ? 1 : 0;
+          const other = prev[otherIdx];
+          const seen = new Set();
+          if (other) seen.add(recKey(other));
+
+          const replacement = incoming.find((r) => {
+            const key = recKey(r);
+            return key && !seen.has(key);
+          });
+
+          if (i === 0) {
+            if (replacement && other) return [replacement, other];
+            if (replacement) return [replacement];
+            if (other) return [other];
+            return [];
+          } else {
+            if (other && replacement) return [other, replacement];
+            if (other) return [other];
+            if (replacement) return [replacement];
+            return [];
+          }
         });
       });
   }
