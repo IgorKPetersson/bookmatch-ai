@@ -43,7 +43,7 @@ export default function Navbar() {
             <img
               src="/mediamatch_logo.svg"
               alt="BookMatch AI logo"
-              className="h-9 w-auto"
+              className="h-9 w-auto scale-150 origin-left"
             />
             <span className="sr-only">BookMatch AI</span>
           </NavLink>
