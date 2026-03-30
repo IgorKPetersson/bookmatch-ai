@@ -28,8 +28,6 @@ const cardStyle = {
   boxShadow: shadow,
 };
 
-const PAGE_SIZE = 10;
-
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
 
@@ -155,7 +153,7 @@ export default function Search() {
 
     const timeout = setTimeout(() => {
       fetch(
-        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * PAGE_SIZE}&limit=${PAGE_SIZE}`,
+        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * 8}`,
         { credentials: "include" },
       )
         .then((res) => res.json())
