@@ -1,6 +1,6 @@
 from db import engine
 
-# Testa anslutningen
+# Test the commnection
 try:
     connection = engine.connect()
     print("✅ Anslutningen till databasen fungerar!")

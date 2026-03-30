@@ -39,8 +39,13 @@ export default function Navbar() {
         <div className="py-4 flex items-center justify-between relative">
 
           {/* Logo */}
-          <NavLink to="/" className="text-2xl font-bold text-blue-600">
-            BookMatch AI
+          <NavLink to="/" className="flex items-center gap-2">
+            <img
+              src="/mediamatch_logo.svg"
+              alt="BookMatch AI logo"
+              className="h-9 w-auto"
+            />
+            <span className="sr-only">BookMatch AI</span>
           </NavLink>
 
           {/* Center Navigation - desktop */}

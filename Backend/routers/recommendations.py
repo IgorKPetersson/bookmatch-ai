@@ -11,9 +11,9 @@ from models import (
     Book,
     BookList,
     BookListItem,
+    DismissedRecommendation,
     RecommendationList,
     RecommendedBook,
-    DismissedRecommendation,
     User,
 )
 from schemas import (
@@ -139,7 +139,7 @@ Respond ONLY in this exact JSON format, no other text:
             }
         )
 
-        # 💾 SAVE TO DB
+        # SAVE TO DB
     new_list = RecommendationList(
         user_id=current_user.id,
         input_books=",".join(request.favorite_books),
@@ -195,9 +195,12 @@ def reshuffle_rejected_books(
     ]
     saved_titles = {_norm_title(t) for t in saved_titles_raw if _norm_title(t)}
     dismissed_titles = {_norm_title(t) for t in dismissed_titles_raw if _norm_title(t)}
-    banned_titles = saved_titles | dismissed_titles | {
-        _norm_title(t) for t in rejected_books if _norm_title(t)
-    } | {_norm_title(t) for t in keep_books if _norm_title(t)}
+    banned_titles = (
+        saved_titles
+        | dismissed_titles
+        | {_norm_title(t) for t in rejected_books if _norm_title(t)}
+        | {_norm_title(t) for t in keep_books if _norm_title(t)}
+    )
     banned_titles_for_prompt = sorted(t for t in banned_titles if t)
 
     prompt = f"""I need book recommendations for someone who enjoys these books: {", ".join(favorite_books)}.
