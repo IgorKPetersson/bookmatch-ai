@@ -79,7 +79,7 @@ export default function Search() {
     "Fantasy",
     "Fiction",
     "Graphic Novel",
-    "Hisgit log -n 10torical Fiction",
+    "Historical Fiction",
     "Horror",
     "Memoir",
     "Mystery",
