@@ -1014,11 +1014,11 @@ export default function Dashboard() {
                   {recentlyAdded.map((book) => (
                     <div
                       key={book.id}
+                      className="dash-book-card"
                       style={{
                         flex: 1,
                         background: "white",
                         borderRadius: "16px",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
                         overflow: "hidden",
                         display: "flex",
                         flexDirection: "column",
@@ -1136,10 +1136,10 @@ export default function Dashboard() {
             ) : (
               <div
                 ref={selectedBookRef}
+                className="dash-book-card"
                 style={{
                   background: "white",
                   borderRadius: "14px",
-                  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
                   overflow: "hidden",
                 }}
               >

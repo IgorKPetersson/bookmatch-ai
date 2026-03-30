@@ -28,6 +28,16 @@
   align-items: start;
 }
 
+.dash-book-card {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dash-book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
 @media (max-width: 1024px) {
   .dashboard-container {
     padding: 0 20px 48px;

@@ -59,6 +59,7 @@ export default function Search() {
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
   const GENRES = [
+    "Action",
     "Adventure",
     "Autobiography",
     "Biography",
@@ -68,7 +69,7 @@ export default function Search() {
     "Fantasy",
     "Fiction",
     "Graphic Novel",
-    "Historical Fiction",
+    "Hisgit log -n 10torical Fiction",
     "Horror",
     "Memoir",
     "Mystery",
