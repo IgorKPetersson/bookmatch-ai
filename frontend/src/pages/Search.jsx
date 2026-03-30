@@ -28,6 +28,8 @@ const cardStyle = {
   boxShadow: shadow,
 };
 
+const PAGE_SIZE = 10;
+
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
 
@@ -153,7 +155,7 @@ export default function Search() {
 
     const timeout = setTimeout(() => {
       fetch(
-        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * 8}`,
+        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * PAGE_SIZE}&limit=${PAGE_SIZE}`,
         { credentials: "include" },
       )
         .then((res) => res.json())
@@ -676,6 +678,16 @@ export default function Search() {
                       overflow: "hidden",
                       display: "flex",
                       flexDirection: "column",
+                      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 16px rgba(0,0,0,0.10)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = shadow;
+                      e.currentTarget.style.transform = "none";
                     }}
                   >
                     <img
