@@ -2,7 +2,7 @@ from datetime import datetime
 
 from db import Base
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 
 class User(Base):
@@ -53,7 +53,13 @@ class BookListItem(Base):
     booklist_id = Column(Integer, ForeignKey("booklists.id"))
     book_id = Column(Integer, ForeignKey("books.id"))
 
-    booklist = relationship("BookList", backref="items")
+    booklist = relationship(
+        "BookList",
+        backref=backref(
+            "items",
+            order_by="BookListItem.id",  # keeps items in insert order
+        ),
+    )
     book = relationship("Book")
 
 
