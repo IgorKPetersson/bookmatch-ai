@@ -26,6 +26,7 @@ export default function Dashboard() {
 
   const recentlyAdded = lists
     .flatMap((l) => l.books.map((b) => ({ ...b, listName: l.name })))
+    .sort((a, b) => (a.id || 0) - (b.id || 0)) // use book id as recency proxy
     .slice(-2)
     .reverse();
   const [newListName, setNewListName] = useState("");

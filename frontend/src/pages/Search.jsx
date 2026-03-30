@@ -65,6 +65,19 @@ export default function Search() {
     });
   }
 
+  function pickUnique(recs, limit, existingTitles = []) {
+    const seen = new Set(existingTitles.map((t) => t.toLowerCase().trim()).filter(Boolean));
+    const result = [];
+    for (const r of recs) {
+      const key = (r?.isbn || r?.title || "").toLowerCase().trim();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      result.push(r);
+      if (result.length === limit) break;
+    }
+    return result;
+  }
+
   const activeBookNumber =
     activeField === "book1" ? 1 : activeField === "book2" ? 2 : 3;
 
@@ -197,8 +210,8 @@ export default function Search() {
 
       if (res.ok) {
         await loadLists();
-        const unique = dedupeRecs(data.recommendations || []);
-        setRecommendations(unique.slice(0, 2));
+        const unique = pickUnique(data.recommendations || [], 2);
+        setRecommendations(unique);
         setSelectedListPerRec({});
       } else if (res.status === 401) {
         setNeedsLogin(true);
@@ -228,10 +241,11 @@ export default function Search() {
     })
       .then((res) => res.json())
       .then((data) => {
-        const newBook = data.recommendations[0];
+        const incoming = data.recommendations || [];
         setRecommendations((prev) => {
-          const next = prev.map((rec, idx) => (idx === i ? newBook : rec));
-          return dedupeRecs(next);
+          const keep = prev.filter((_, idx) => idx !== i);
+          const filled = [...keep, ...incoming];
+          return pickUnique(filled, 2);
         });
       });
   }
