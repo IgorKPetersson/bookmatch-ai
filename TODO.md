@@ -5,11 +5,11 @@
 [x] Fix tabb-icon. It is react standard icon now
 [x] Fix Logotype. Change logo form texdt to an acutal logo.
 
-
 ## Database:
 [ ] Manage, create and edit a curated book database based on booklists
 [ ] Database needs to sort authors, title (international), image yes or no, isbn and more
 [ ] Exclude searches for online api calls when database is online and running
+[ ] Keep images as URL to save space adn to ensure latest variant is pulled
 
 ## Dashboard.jsx:
 [ ] Make the SELECTED BOOK - card title smaller, it is too big.
@@ -34,6 +34,9 @@
 ## Contact.jsx
 [ ] Send Message Button - get it to work by sending the message to a real mail-adress.
 
+## Change Password
+[ ] Need e-mail handler, setup a proper password change but only for registered accounts, not Oauth (google)
+
 ## Others:
 [ ] Ge the forgot password / change password function to work.
 [ ] Add a delete account function
@@ -42,3 +45,30 @@
 [ ] Add post-this-book-on-social-media funcitonality
 [ ] We catch external errors on the server side and return empty results instead of crashing.
 [ ] We plan to add clear error messages for the user and retries/rate limiting.
+
+
+## ADDITIONS
+
+### Amazon + social media
+In the future I also want to add 2 things.
+Firstly a "buy it here" - button that would redirec the user to Amazon or something
+and also a social media button that you can post the book details to
+facebook or isntagram or snapchat or someting. But that is for the future.
+
+### Change Password + mail return + two Factor password + deletion
+We need a mail password reset
+Two factor authentication of some sort and how do the user delete the account if they want to?
+"change password" for those accounts that do a manual account?
+
+Usual setup is:
+user is logged in, goes to Your Account or Settings, fills in:
+current password, new password, confirm new password
+backend verifies current password.
+If correct, backend hashes the new password and saves it.
+That works well for non-Google accounts because you already store a hashed password for them.
+
+A clean future version would be:
+Show Change Password only for local/manual accounts and hide it for Google users
+
+One important note:
+Right now your database may not clearly distinguish manual account vs Google account, unless your friend’s backend changes added that somewhere. So the feature is doable, but you may first need a reliable way to know which login type the user has.
