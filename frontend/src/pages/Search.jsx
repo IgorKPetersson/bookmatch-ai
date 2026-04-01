@@ -28,6 +28,148 @@ const cardStyle = {
   boxShadow: shadow,
 };
 
+function buildPageList(currentPage, totalPages) {
+  if (!totalPages || totalPages < 1) return [];
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages = [1];
+  const current = currentPage + 1; // convert to 1-based for logic
+  const left = Math.max(2, current - 1);
+  const right = Math.min(totalPages - 1, current + 1);
+
+  if (left > 2) pages.push("left-ellipsis");
+
+  for (let i = left; i <= right; i += 1) {
+    pages.push(i);
+  }
+
+  if (right < totalPages - 1) pages.push("right-ellipsis");
+
+  pages.push(totalPages);
+  return pages;
+}
+
+function Pagination({
+  page,
+  setPage,
+  totalResults,
+  pageSize,
+  textSecondary,
+  borderColor,
+}) {
+  const totalPages =
+    totalResults && pageSize ? Math.ceil(totalResults / pageSize) : 0;
+
+  const goTo = (next) => {
+    if (next < 0) return;
+    if (totalPages && next >= totalPages) return;
+    setPage(next);
+  };
+
+  const pages = buildPageList(page, totalPages);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        onClick={() => goTo(0)}
+        disabled={page === 0}
+        style={{
+          padding: "8px 12px",
+          borderRadius: "8px",
+          border: `1px solid ${borderColor}`,
+          background: "white",
+          fontSize: "13px",
+          cursor: page === 0 ? "not-allowed" : "pointer",
+          color: page === 0 ? "#c9bfb4" : textSecondary,
+        }}
+      >
+        First
+      </button>
+      <button
+        onClick={() => goTo(page - 1)}
+        disabled={page === 0}
+        style={{
+          padding: "8px 12px",
+          borderRadius: "8px",
+          border: `1px solid ${borderColor}`,
+          background: "white",
+          fontSize: "13px",
+          cursor: page === 0 ? "not-allowed" : "pointer",
+          color: page === 0 ? "#c9bfb4" : textSecondary,
+        }}
+      >
+        Previous
+      </button>
+
+      {pages.map((p, idx) =>
+        typeof p === "number" ? (
+          <button
+            key={p}
+            onClick={() => goTo(p - 1)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: "8px",
+              border: `1px solid ${borderColor}`,
+              background: p - 1 === page ? "#eef2ff" : "white",
+              fontSize: "13px",
+              fontWeight: p - 1 === page ? 700 : 500,
+              cursor: "pointer",
+              color: textSecondary,
+            }}
+          >
+            {p}
+          </button>
+        ) : (
+          <span
+            key={`${p}-${idx}`}
+            style={{ fontSize: "13px", color: "#b7aea3", padding: "0 6px" }}
+          >
+            …
+          </span>
+        ),
+      )}
+
+      <button
+        onClick={() => goTo(page + 1)}
+        disabled={totalPages ? page + 1 >= totalPages : false}
+        style={{
+          padding: "8px 12px",
+          borderRadius: "8px",
+          border: `1px solid ${borderColor}`,
+          background: "white",
+          fontSize: "13px",
+          cursor:
+            totalPages && page + 1 >= totalPages ? "not-allowed" : "pointer",
+          color:
+            totalPages && page + 1 >= totalPages ? "#c9bfb4" : textSecondary,
+        }}
+      >
+        Next
+      </button>
+      <button
+        onClick={() => goTo(totalPages - 1)}
+        disabled={totalPages ? page + 1 >= totalPages : true}
+        style={{
+          padding: "8px 12px",
+          borderRadius: "8px",
+          border: `1px solid ${borderColor}`,
+          background: "white",
+          fontSize: "13px",
+          cursor:
+            totalPages && page + 1 >= totalPages ? "not-allowed" : "pointer",
+          color:
+            totalPages && page + 1 >= totalPages ? "#c9bfb4" : textSecondary,
+        }}
+      >
+        Last
+      </button>
+    </div>
+  );
+}
+
 export default function Search() {
   const [activeField, setActiveField] = useState("book1");
 
@@ -49,6 +191,9 @@ export default function Search() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
+  const [pageSize, setPageSize] = useState(8);
+  const [pageInput, setPageInput] = useState(1);
   const [selectedListPerRec, setSelectedListPerRec] = useState({});
 
   const [lists, setLists] = useState([]);
@@ -172,18 +317,38 @@ export default function Search() {
 
     const timeout = setTimeout(() => {
       fetch(
-        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * 8}`,
+        `${import.meta.env.VITE_API_URL}/recommendations/search?query=${query}&start=${page * pageSize}`,
         { credentials: "include" },
       )
         .then((res) => res.json())
         .then((data) => {
-          if (data.length > 0 && !data.error) setResults(data);
+          if (data?.error) return;
+
+          if (Array.isArray(data)) {
+            setResults(data);
+            setTotalResults(0);
+            setPageSize(8);
+            return;
+          }
+
+          setResults(data.results || []);
+          setTotalResults(Number(data.total) || 0);
+          setPageSize(Number(data.page_size) || 8);
         })
         .catch(console.error);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [activeField, page, input1, input2, input3]);
+  }, [activeField, page, pageSize, input1, input2, input3]);
+
+  useEffect(() => {
+    setPageInput(page + 1);
+  }, [page]);
+
+  useEffect(() => {
+    setPage(0);
+    setPageInput(1);
+  }, [input1, input2, input3, activeField]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -632,36 +797,82 @@ export default function Search() {
                   ))}
                 </div>
 
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    disabled={page === 0}
-                    style={{
-                      padding: "9px 18px",
-                      borderRadius: "8px",
-                      border: `1px solid ${borderColor}`,
-                      background: cardBackground,
-                      fontSize: "13px",
-                      cursor: page === 0 ? "not-allowed" : "pointer",
-                      color: page === 0 ? "#c9bfb4" : textSecondary,
-                    }}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setPage((p) => p + 1)}
-                    style={{
-                      padding: "9px 18px",
-                      borderRadius: "8px",
-                      border: `1px solid ${borderColor}`,
-                      background: cardBackground,
-                      fontSize: "13px",
-                      cursor: "pointer",
-                      color: textSecondary,
-                    }}
-                  >
-                    Next
-                  </button>
+                <div
+                  className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                  style={{
+                    border: `1px solid ${dividerColor}`,
+                    borderRadius: "10px",
+                    padding: "10px 12px",
+                    background: cardBackground,
+                  }}
+                >
+                  <Pagination
+                    page={page}
+                    setPage={setPage}
+                    totalResults={totalResults}
+                    pageSize={pageSize}
+                    textSecondary={textSecondary}
+                    borderColor={borderColor}
+                  />
+
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="page-jump"
+                      style={{ fontSize: "12px", color: textMuted }}
+                    >
+                      Jump to page
+                    </label>
+                    <input
+                      id="page-jump"
+                      type="number"
+                      min={1}
+                      max={
+                        totalResults
+                          ? Math.max(1, Math.ceil(totalResults / pageSize))
+                          : undefined
+                      }
+                      value={pageInput}
+                      onChange={(e) => {
+                        const next = e.target.value;
+                        setPageInput(next);
+                      }}
+                      onBlur={() => {
+                        const next = Math.max(
+                          1,
+                          Math.min(
+                            totalResults
+                              ? Math.ceil(totalResults / pageSize)
+                              : page + 1,
+                            Number(pageInput) || 1,
+                          ),
+                        );
+                        setPage(next - 1);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const next = Math.max(
+                            1,
+                            Math.min(
+                              totalResults
+                                ? Math.ceil(totalResults / pageSize)
+                                : page + 1,
+                              Number(pageInput) || 1,
+                            ),
+                          );
+                          setPage(next - 1);
+                        }
+                      }}
+                      style={{
+                        width: "70px",
+                        border: `1px solid ${borderColor}`,
+                        borderRadius: "8px",
+                        padding: "8px 10px",
+                        fontSize: "13px",
+                        color: textPrimary,
+                        background: "white",
+                      }}
+                    />
+                  </div>
                 </div>
               </>
             ) : (

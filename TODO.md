@@ -46,9 +46,11 @@
 [ ] We catch external errors on the server side and return empty results instead of crashing.
 [ ] We plan to add clear error messages for the user and retries/rate limiting.
 
+## Create account
+[ ] When user creates an account check if email already exist,iof it does, give a proper error message
+[ ] When user uses an already existant e-mail adress, tell user the account already exists and askl if it wants to login or retrieve password
 
 ## ADDITIONS
-
 ### Amazon + social media
 In the future I also want to add 2 things.
 Firstly a "buy it here" - button that would redirec the user to Amazon or something
@@ -56,19 +58,11 @@ and also a social media button that you can post the book details to
 facebook or isntagram or snapchat or someting. But that is for the future.
 
 ### Change Password + mail return + two Factor password + deletion
-We need a mail password reset
-Two factor authentication of some sort and how do the user delete the account if they want to?
+We need a mail password reset. Two factor authentication of some sort and how do the user delete the account if they want to?
 "change password" for those accounts that do a manual account?
-
-Usual setup is:
-user is logged in, goes to Your Account or Settings, fills in:
-current password, new password, confirm new password
-backend verifies current password.
-If correct, backend hashes the new password and saves it.
-That works well for non-Google accounts because you already store a hashed password for them.
-
 A clean future version would be:
-Show Change Password only for local/manual accounts and hide it for Google users
+Show Change Password only for local/manual accounts and hide it for Google users.
 
-One important note:
-Right now your database may not clearly distinguish manual account vs Google account, unless your friend’s backend changes added that somewhere. So the feature is doable, but you may first need a reliable way to know which login type the user has.
+### Add a latest popular books på frontend
+
+### Add adminpage for admins to edit users and so forth

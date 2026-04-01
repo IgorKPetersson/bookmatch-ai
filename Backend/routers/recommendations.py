@@ -372,13 +372,17 @@ def fetch_recommend_history(
 
 @router.get("/search")
 def search_books(query: str, start: int = 0, current_user=Depends(get_current_user)):
+    """Search books via Google Books and return paginated results with totals."""
+
     if not query:
-        return []
+        return {"results": [], "total": 0, "page_size": 8, "start": start}
+
+    page_size = 8
 
     url = "https://www.googleapis.com/books/v1/volumes"
     params = {
         "q": query,
-        "maxResults": 8,
+        "maxResults": page_size,
         "startIndex": start,
         "key": os.getenv("GOOGLE_API_KEY"),
     }
@@ -388,17 +392,17 @@ def search_books(query: str, start: int = 0, current_user=Depends(get_current_us
 
     print("GOOGLE RESPONSE:", data)
 
-    total = data.get("totalItems")
+    total = data.get("totalItems") or 0
 
     # 🔥 only block if total exists AND is exceeded
     if total and start >= total:
-        return []
+        return {"results": [], "total": total, "page_size": page_size, "start": start}
 
     if "error" in data:
         return data
 
     if "items" not in data:
-        return []
+        return {"results": [], "total": total, "page_size": page_size, "start": start}
 
     results = []
 
@@ -413,4 +417,9 @@ def search_books(query: str, start: int = 0, current_user=Depends(get_current_us
             }
         )
 
-    return results
+    return {
+        "results": results,
+        "total": total,
+        "page_size": page_size,
+        "start": start,
+    }
